@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Organization Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Plaza — Organization Dashboard</h1>
+        <p>Welcome, {{ request.user.username }}!</p>
+
+        <a href="{% url 'home' %}">Back to Home</a>
+
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </header>
+
+    <hr>
+
+    <main>
+        <h2>Manage Your Organization</h2>
+        <p>This dashboard is restricted to organization members.</p>
+
+        <a href="#">Create Event</a>
+    </main>
+</body>
+</html>

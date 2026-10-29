@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <header>
+        <h1>Plaza</h1>
+        <p>Welcome, {{ request.user.username }}!</p>
+        
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </header>
+    <hr>
+    <main>
+    <section>
+        <h2>Events</h2>
+        {% for event in events %}
+            <article>
+                <h3>{{ event.name }}</h3>
+                <p>{{ event.desc }}</p>
+                <p>
+                    <strong>Location:</strong> {{ event.location }}
+                </p>
+
+                <p>
+                    <strong>Type:</strong>
+                    {% if event.type == "SLOT" %}
+                        Slot-based
+                    {% else %}
+                        Ticket-based
+                    {% endif %}
+                </p>
+
+                <p>
+                    <strong>Starts:</strong> {{ event.start_time }}
+                </p>
+
+                <p>
+                    <strong>Ends:</strong> {{ event.end_time }}
+                </p>
+
+                <hr>
+            </article>
+        {% empty %}
+            <p>No events available right now.</p>
+        {% endfor %}
+    </section>
+        {% if org %}
+        <section>
+            <h2>Organization Dashboard</h2>
+            <p>Manage your organization's events.</p>
+            <a href="{% url 'org_dashboard' %}">
+                Open Dashboard
+            </a>
+        </section>
+        {% endif %}
+    </main>
+</body>
+</html>

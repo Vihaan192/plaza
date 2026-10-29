@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account </title>
+</head>
+<body>
+    <h1>My Account</h1>
+    <p>Welcome, <strong>{{ user.username }}</strong>!</p>
+
+    <hr>
+    <h2>Current Balance: ₹{{ balance }}</h2>
+    <a href="{% url 'wallet' %}">
+        <button type="button">+ Manage Wallet</button>
+    </a>
+    <hr>
+
+    <h3>Transaction History</h3>
+
+    {% for tx in transactions %}
+    <li>
+        <strong>{{ tx.created_at|date:"M d, Y" }}</strong> - 
+        {% if tx.transaction_type == 'CREDIT' %}
+            <span style="color: green; font-weight: bold;">
+                CREDIT +₹{{ tx.amount }}
+            </span>
+        {% else %}
+            <span style="color: red; font-weight: bold;">
+                DEBIT -₹{{ tx.amount }}
+            </span>
+        {% endif %}
+    </li>
+    {% empty %}
+        <p>No transactions found yet.</p>
+    {% endfor %}
+
+</body>
+</html>

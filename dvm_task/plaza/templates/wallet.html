@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wallet</title>
+</head>
+<body>
+    <a href="{% url 'account' %}"> Account </a>
+
+    <h1>Manage Wallet</h1>
+    <input type="hidden" name="transaction_type" value="CREDIT">
+    <form method="POST" action="{% url 'wallet' %}">
+        {% csrf_token %}
+        <input type="hidden" name="transaction_type" value="CREDIT">
+        <div>
+            <label for="amount"><strong>Amount (₹):</strong></label><br>
+            <input 
+                type="number" 
+                step="1" 
+                name="amount" 
+                id="amount" 
+                placeholder="0.00" 
+                required 
+                min="1"
+            >
+        </div>
+
+
+        <button type="submit">Submit Transaction</button>
+    </form>
+</body>
+</html>
