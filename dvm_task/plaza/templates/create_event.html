@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Event | Plaza</title>
+    <style>
+        body { background-color: #171b1b; color: #f1f1f1; font-family: Arial, sans-serif; padding: 40px 20px; margin: 0; }
+        .container { max-width: 700px; margin: auto; padding: 30px; background-color: #222828; border: 1px solid #363d3d; border-radius: 12px; }
+        h1, h2 { color: #f5c542; }
+        form { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        label { font-weight: bold; color: #ccc; font-size: 13px; display: block; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 11px; background-color: #303838; color: white; border: 1px solid #505858; border-radius: 6px; box-sizing: border-box; }
+        button, .btn { padding: 12px; background-color: #f5c542; color: #171b1b; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; text-decoration: none; text-align: center; display: inline-block; }
+        button:hover, .btn:hover { background-color: #e4b52f; }
+        
+        .schedule-row { background: #1c2222; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #303838; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
+        .alert-error { background: #4d2222; color: #ffdddd; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #6b3333; }
+        .back-link { display: inline-block; margin-top: 25px; color: #f5c542; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Create New Event</h1>
+    <p style="color: #aaa;">Publish a fixed capacity ticket event or a time-sliced slot event.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-error">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div style="background-color: #4d2222; border: 1px solid #6b3333; color: #ffdddd; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px;">
+                {% for error in form.non_field_errors %}
+                    <div style="font-weight: bold;">⚠️ {{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+
+        <hr style="border-color: #363d3d; margin: 30px 0;">
+
+        <h2>Operating Schedules (For Slot Events Only)</h2>
+        <p style="color: #aaa; font-size: 13px;">Add daily operating hours. Slots will automatically be generated between these times based on your duration setting above.</p>
+
+        <!-- Management form is mandatory for formsets to function -->
+        {{ formset.management_form }}
+
+        <div id="schedule-form-list">
+            {% for schedule_form in formset %}
+                <div class="schedule-row">
+                    <div>
+                        {{ schedule_form.date.label_tag }}
+                        {{ schedule_form.date }}
+                    </div>
+                    <div>
+                        {{ schedule_form.start_time.label_tag }}
+                        {{ schedule_form.start_time }}
+                    </div>
+                    <div>
+                        {{ schedule_form.end_time.label_tag }}
+                        {{ schedule_form.end_time }}
+                    </div>
+                    {% if formset.can_delete %}
+                        <div style="display: flex; align-items: center; gap: 5px; padding-bottom: 5px;">
+                            {{ schedule_form.DELETE }} <label style="margin:0; font-size:12px;">Delete</label>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" style="margin-top: 15px;">Publish Event & Generate Slots</button>
+    </form>
+
+    <a href="{% url 'org_dashboard' %}" class="back-link">← Back to Dashboard</a>
+</div>
+
+</body>
+</html>

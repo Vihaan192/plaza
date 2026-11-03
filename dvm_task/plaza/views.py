@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.db.models import Sum
 from .models import *
@@ -9,7 +9,8 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from decimal import Decimal
- 
+from .forms import EventCreationForm, ScheduleFormSet
+
 @login_required
 def home_view(request):
     org =  request.user.groups.filter(name = "Organization").exists()
@@ -56,9 +57,55 @@ def org_dashboard_view(request):
     return render(request,"org_dash.html")
 
 @login_required
+@transaction.atomic
 def create_event_view(request):
     if not request.user.groups.filter(name="Organization").exists():
         raise PermissionDenied("Thou is an impostor among men")
+    if request.method == "POST":
+        form = EventCreationForm(request.POST)
+        formset = ScheduleFormSet(request.POST)
+
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.created_by = request.user
+
+            # CASE A: Slot-based event (requires schedules & slice generation)
+            if event.type == "SLOT":
+                if formset.is_valid():
+                    try:
+                        # 1. Save parent event first to generate an ID
+                        event.save()
+                        
+                        # 2. Link formset child rows to this event and save them
+                        formset.instance = event
+                        formset.save()
+                        
+                        # 3. Automatically slice and generate time slots
+                        create_event_slots(event)
+                        
+                        messages.success(request, f"Slot event '{event.name}' and its slots created successfully!")
+                        return redirect('org_dashboard')
+                    
+                    except ValidationError as e:
+                        # If slot generation fails rules (e.g. times don't divide evenly)
+                        event.delete()  # Rollback
+                        messages.error(request, f"Slot Generation Error: {e.message if hasattr(e, 'message') else e}")
+                else:
+                    messages.error(request, "Please fix the schedule errors below.")
+            
+            # CASE B: Standard Ticket-based event
+            else:
+                event.save()
+                messages.success(request, f"Ticket event '{event.name}' created successfully!")
+                return redirect('org_dashboard')
+    else:
+        form = EventCreationForm()
+        formset = ScheduleFormSet()
+
+    return render(request, "create_event.html", {
+        "form": form,
+        "formset": formset
+    })
 
 @login_required
 def events_view(request):
@@ -238,4 +285,57 @@ def book_slot_view(request,event_id):
         "total_amount" : total_amount
     })
 
-    
+
+@transaction.atomic
+def confirm_ticket_view(request):
+    if not request.user.groups.filter(name="Organization").exists():
+        raise PermissionDenied("Thou is an impostor among men")
+    event_query = request.GET.get('event_q', '').strip()
+    selected_event_id = request.GET.get('event_id', '').strip()
+
+    my_events = []
+    selected_event = None
+    ticket_bookings = []
+
+    # 1. Search for ticket events created by this organizer
+    if event_query:
+        my_events = Event.objects.filter(
+            created_by=request.user,
+            type="TICKET",
+            name__icontains=event_query
+        )
+    else:
+        my_events = Event.objects.filter(created_by=request.user, type="TICKET")
+
+    # 2. If a specific event is selected, fetch its bookings
+    if selected_event_id:
+        selected_event = get_object_or_404(
+            Event, id=selected_event_id, created_by=request.user, type="TICKET"
+        )
+        ticket_bookings = TicketBooking.objects.filter(event=selected_event).select_related('user')
+
+    # 3. Handle POST action to mark a ticket booking as consumed
+    if request.method == "POST":
+        booking_id = request.POST.get("booking_id")
+        booking = get_object_or_404(
+            TicketBooking, id=booking_id, event__created_by=request.user
+        )
+        booking.consumed = "YES"
+        booking.save(update_fields=["consumed"])
+        messages.success(request, f"Booking #{booking.id} ({booking.user.username}) consumed")
+
+        # Redirect back keeping the selected event active
+        return redirect(f"{request.path}?event_id={selected_event_id}&event_q={event_query}")
+
+    return render(request, "confirm_tickets.html", {
+        "event_query": event_query,
+        "my_events": my_events,
+        "selected_event": selected_event,
+        "ticket_bookings": ticket_bookings,
+    })
+
+def analytics_view(request):
+    if not request.user.groups.filter(name="Organization").exists():
+        raise PermissionDenied("Thou is an impostor among men")
+    pass
+

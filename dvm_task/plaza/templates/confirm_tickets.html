@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Ticket Check-ins | Plaza</title>
+    <style>
+        body { background-color: #171b1b; color: #f1f1f1; font-family: Arial, sans-serif; padding: 40px 20px; margin: 0; }
+        .container { max-width: 900px; margin: auto; padding: 30px; background-color: #222828; border: 1px solid #363d3d; border-radius: 12px; }
+        h1, h2 { color: #f5c542; }
+        .search-form { display: flex; gap: 10px; margin-bottom: 25px; }
+        input[type="text"] { flex: 1; padding: 11px; background-color: #303838; color: white; border: 1px solid #505858; border-radius: 6px; }
+        button, .btn { padding: 10px 18px; background-color: #f5c542; color: #171b1b; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        button:hover, .btn:hover { background-color: #e4b52f; }
+        
+        .event-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .event-card { background: #1c2222; border: 1px solid #303838; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; }
+        .event-card h3 { margin: 0 0 10px 0; color: #f5c542; font-size: 16px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #1c2222; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #303838; font-size: 14px; }
+        th { background-color: #2c3333; color: #f5c542; }
+        
+        .alert { background: #224d22; color: #ddffdd; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; border: 1px solid #336b33; }
+        .back-link { display: inline-block; margin-top: 25px; color: #f5c542; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Event Ticket Check-In</h1>
+    <p style="color: #aaa;">Search for your event below to view bookings and manage attendee check-ins.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Step 1: Event Search Bar -->
+    <form method="GET" class="search-form">
+        <input type="text" name="event_q" value="{{ event_query }}" placeholder="Search your event name...">
+        <button type="submit">Search Events</button>
+    </form>
+
+    <!-- Step 2: Select Event from Results -->
+    {% if not selected_event %}
+        <h2>Select an Event</h2>
+        <div class="event-list">
+            {% for ev in my_events %}
+                <div class="event-card">
+                    <div>
+                        <h3>{{ ev.name }}</h3>
+                        <p style="color: #aaa; font-size: 13px; margin: 0 0 15px 0;">Starts: {{ ev.start_time|date:"M d, Y" }}</p>
+                    </div>
+                    <a href="?event_id={{ ev.id }}&event_q={{ event_query }}" class="btn" style="text-align: center;">View Bookings →</a>
+                </div>
+            {% empty %}
+                <p style="color: #777;">No ticket-based events found.</p>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Step 3: Display Bookings Table for Selected Event -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <h2>Bookings for: {{ selected_event.name }}</h2>
+            <a href="?event_q={{ event_query }}" class="btn" style="background-color: #303838; color: #f1f1f1; border: 1px solid #505858;">← Choose Different Event</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Attendee</th>
+                    <th>Quantity</th>
+                    <th>Total Paid</th>
+                    <th>Booking Status</th>
+                    <th>Consumed?</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in ticket_bookings %}
+                <tr>
+                    <td>#{{ b.id }}</td>
+                    <td>{{ b.user.username }}</td>
+                    <td>{{ b.quantity }}</td>
+                    <td>₹{{ b.total_amount }}</td>
+                    <td>{{ b.status }}</td>
+                    <td>
+                        {% if b.consumed == 'YES' %}
+                            <span style="color: #4CAF50; font-weight: bold;">Yes</span>
+                        {% else %}
+                            <span style="color: #f5c542; font-weight: bold;">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if b.consumed != 'YES' %}
+                        <form method="POST" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="booking_id" value="{{ b.id }}">
+                            <button type="submit" style="padding: 6px 12px; font-size: 12px;">Mark Consumed</button>
+                        </form>
+                        {% else %}
+                        <span style="color: #777;">Checked In</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #777;">No bookings recorded for this event yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <a href="{% url 'org_dashboard' %}" class="back-link">← Back to Dashboard</a>
+</div>
+
+</body>
+</html>

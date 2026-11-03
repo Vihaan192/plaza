@@ -107,6 +107,7 @@ class TicketBooking(models.Model):
     total_amount = models.DecimalField(max_digits = 10,decimal_places = 2,default = 0)
     status = models.CharField(max_length = 10 , choices = [('CONFIRMED','Confirmed'),('CANCELLED','Cancelled')])
     created_at = models.DateTimeField(auto_now_add=True)
+    consumed = models.CharField(max_length = 10, choices = [('YES','Yes'),('NO','No')],default= 'No')
 
     def __str__(self):
         return f"{self.user} : {self.event} : {self.status} "
@@ -119,6 +120,7 @@ class SlotBooking(models.Model):
     slot_end_time = models.DateTimeField(null = True, blank = True)
     status = models.CharField(max_length = 10 , choices = [('CONFIRMED','Confirmed'),('CANCELLED','Cancelled')])
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    consumed = models.CharField(max_length = 10, choices = [('YES','Yes'),('NO','No')], default = 'No')
+
     def __str__(self):
             return f"{self.user} : {self.slot} : {self.status} "
