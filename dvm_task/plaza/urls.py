@@ -9,4 +9,8 @@ urlpatterns = [
     path('account/',account_view , name = 'account'),
     path('account/wallet', wallet_view , name = 'wallet'),
     path('org-dashboard/',org_dashboard_view,name='org_dashboard'),
+    path("events/", events_view, name="events"),
+    path("events/<int:event_id>/", event_detail_view, name="event_detail"),
+    path("events/<int:event_id>/book_ticket/",book_ticket_view,name = "book_ticket"),
+    path("events/<int:event_id>/book_slot/",book_slot_view,name = "book_slot"),
 ]

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ event.name }} | Plaza</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            font-family: Arial, sans-serif;
+            background-color: #171b1b;
+            color: #f1f1f1;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            background-color: #222828;
+            border: 1px solid #363d3d;
+            border-radius: 12px;
+        }
+
+        /* Alert & Message Styling */
+        .alert-box {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .alert-error, .alert-danger {
+            background-color: #4d2222;
+            color: #ffdddd;
+            border: 1px solid #6b3333;
+        }
+        .alert-success {
+            background-color: #224d22;
+            color: #ddffdd;
+            border: 1px solid #336b33;
+        }
+
+        h1 {
+            color: #f5c542;
+            margin-top: 0;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #f5c542;
+        }
+
+        .event-info p {
+            line-height: 1.7;
+            color: #ccc;
+        }
+
+        .event-info strong {
+            color: white;
+        }
+
+        .booking-section {
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid #414747;
+        }
+
+        select,
+        input[type="number"] {
+            padding: 11px;
+            background-color: #303838;
+            color: white;
+            border: 1px solid #505858;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        select {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .book-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 22px;
+            background-color: #f5c542;
+            color: #171b1b;
+            border: none;
+            border-radius: 7px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .book-button:hover {
+            background-color: #e4b52f;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 25px;
+            color: #f5c542;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+
+        .empty-message {
+            color: #aaa;
+            margin-top: 15px;
+        }
+
+        .slots-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .slot {
+            padding: 12px 18px;
+            border-radius: 8px;
+            border: 1px solid;
+            font-size: 14px;
+        }
+
+        .available {
+            background: #191d1d;
+            color: #f4d35e;
+            border-color: #f4d35e;
+            cursor: pointer;
+        }
+
+        .available:hover {
+            background: #f4d35e;
+            color: #101313;
+        }
+
+        .unavailable {
+            background: #292929;
+            color: #777;
+            border-color: #444;
+            text-decoration: line-through;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Django Messages & Error Handling Display -->
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <div class="alert-box alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if error_message %}
+        <div class="alert-box alert-error">
+            {{ error_message }}
+        </div>
+    {% endif %}
+
+    <div class="event-info">
+        <h1>{{ event.name }}</h1>
+
+        <p><strong>Description:</strong> {{ event.desc }}</p>
+        <p><strong>Location:</strong> {{ event.location }}</p>
+        <p><strong>Starts:</strong> {{ event.start_time|date:"d M Y, g:i A" }}</p>
+        <p><strong>Ends:</strong> {{ event.end_time|date:"d M Y, g:i A" }}</p>
+        <p><strong>Price:</strong> ₹{{ event.price }}</p>
+
+        {% if event.type == "TICKET" %}
+            <p><strong>Tickets Available:</strong> {{ event.capacity }}</p>
+        {% endif %}
+    </div>
+
+    <div class="booking-section">
+
+        {% if event.type == "SLOT" %}
+
+            <h2>Choose a Date</h2>
+
+            {% if slot_dates %}
+                <!-- Date selection: GET request -->
+                <form method="GET">
+                    <select name="date" required>
+                        {% for day in slot_dates %}
+                            <option
+                                value="{{ day|date:'Y-m-d' }}"
+                                {% if day == selected_date %}selected{% endif %}
+                            >
+                                {{ day|date:"l, d M Y" }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="book-button">
+                        Show Slots
+                    </button>
+                </form>
+
+                <h2>Slots for {{ selected_date|date:"d M Y" }}</h2>
+            {% endif %}
+
+            <form method="POST" action="{% url 'book_slot' event.id %}">
+                {% csrf_token %}
+
+                <div class="slots-container">
+                    {% for slot in slots %}
+                        {% if slot.is_available %}
+                            <button
+                                type="submit"
+                                name="slot_id"
+                                value="{{ slot.id }}"
+                                class="slot available"
+                            >
+                                {{ slot.start_time|date:"g:i A" }} - {{ slot.end_time|date:"g:i A" }}
+                            </button>
+                        {% else %}
+                            <button
+                                type="button"
+                                class="slot unavailable"
+                                disabled
+                            >
+                                {{ slot.start_time|date:"g:i A" }} - {{ slot.end_time|date:"g:i A" }} (Booked)
+                            </button>
+                        {% endif %}
+                    {% empty %}
+                        <p class="empty-message">
+                            No upcoming slots available for this date.
+                        </p>
+                    {% endfor %}
+                </div>
+            </form>
+
+        {% elif event.type == "TICKET" %}
+
+    <h2>Book Tickets</h2>
+
+    {% if event.capacity and event.capacity > 0 %}
+        <form method="POST" action="{% url 'book_ticket' event.id %}">
+            {% csrf_token %}
+
+            <label for="quantity">
+                Number of tickets:
+            </label>
+
+            <br><br>
+
+            <input
+                type="number"
+                name="quantity"
+                id="quantity"
+                min="1"
+                max="{{ event.capacity }}"
+                value="1"
+                required
+            >
+
+            <br>
+
+            <button type="submit" class="book-button">
+                Book Tickets
+            </button>
+        </form>
+    {% else %}
+        <div style="background: #4d2222; padding: 15px; border-radius: 6px; color: #fff; margin-top: 15px;">
+            <strong>Sold Out!</strong> There are no tickets remaining for this event.
+        </div>
+    {% endif %}
+
+{% endif %}
+
+    </div>
+
+    <a href="{% url 'events' %}" class="back-button">
+        ← Back to Events
+    </a>
+
+</div>
+
+</body>
+</html>

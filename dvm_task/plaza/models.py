@@ -23,6 +23,7 @@ class Event(models.Model):
         max_length = 10,
         choices = [('SLOT','Slot'),('TICKET','Ticket')]
     )
+    price = models.DecimalField(max_digits = 10,decimal_places = 2,default = 0)
     capacity = models.PositiveIntegerField(null = True, blank = True, help_text = "Max capacity for ticket based events")
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -97,3 +98,27 @@ class EventSchedule(models.Model):
 
     def __str__(self):
         return f"{self.event.name} - {self.date}"
+
+class TicketBooking(models.Model):
+    user = models.ForeignKey(User , on_delete= models.CASCADE , related_name= "ticket_users")
+    event = models.ForeignKey(Event , on_delete = models.SET_NULL, null = True , related_name = "ticket_events")
+    event_name = models.CharField(max_length = 100,null = True , blank = True)
+    quantity = models.PositiveIntegerField()
+    total_amount = models.DecimalField(max_digits = 10,decimal_places = 2,default = 0)
+    status = models.CharField(max_length = 10 , choices = [('CONFIRMED','Confirmed'),('CANCELLED','Cancelled')])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} : {self.event} : {self.status} "
+
+class SlotBooking(models.Model):
+    user = models.ForeignKey(User , on_delete= models.CASCADE , related_name= "slot_users")
+    slot = models.ForeignKey(EventSlot , on_delete = models.SET_NULL, null = True , related_name = "slot_events")
+    event_name = models.CharField(max_length=100,null = True , blank = True)
+    slot_start_time = models.DateTimeField(null = True)
+    slot_end_time = models.DateTimeField(null = True, blank = True)
+    status = models.CharField(max_length = 10 , choices = [('CONFIRMED','Confirmed'),('CANCELLED','Cancelled')])
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+            return f"{self.user} : {self.slot} : {self.status} "

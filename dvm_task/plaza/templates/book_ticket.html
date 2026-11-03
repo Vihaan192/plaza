@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Status | Plaza</title>
+    <style>
+        body { background-color: #171b1b; color: #f1f1f1; font-family: Arial, sans-serif; padding: 40px; }
+        .container { max-width: 600px; margin: auto; padding: 30px; background-color: #222828; border-radius: 12px; border: 1px solid #363d3d; }
+        h1 { color: #f5c542; }
+        .error-box { background: #4d2222; padding: 15px; border-radius: 6px; margin: 20px 0; color: #fff; }
+        .success-box { background: #224d22; padding: 15px; border-radius: 6px; margin: 20px 0; color: #fff; }
+        .back-button { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #f5c542; color: #171b1b; text-decoration: none; border-radius: 6px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    {% if error_message %}
+        <h1>Booking Failed</h1>
+        <div class="error-box">
+            {{ error_message }}
+        </div>
+        <a href="{% url 'event_detail' event.id %}" class="back-button">← Back to Event</a>
+    {% else %}
+        <h1>Booking Confirmed! 🎉</h1>
+        <div class="success-box">
+            Successfully booked {{ booking.quantity }} ticket(s) for <strong>{{ event.name }}</strong>.
+        </div>
+        <p><strong>Total Paid:</strong> ₹{{ booking.total_amount }}</p>
+        <p><strong>Status:</strong> {{ booking.status }}</p>
+        <a href="{% url 'events' %}" class="back-button">← Back to All Events</a>
+    {% endif %}
+</div>
+
+</body>
+</html>

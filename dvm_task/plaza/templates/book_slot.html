@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Booking Confirmation | Plaza</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            font-family: Arial, sans-serif;
+            background-color: #171b1b;
+            color: #f1f1f1;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            background-color: #222828;
+            border: 1px solid #363d3d;
+            border-radius: 12px;
+        }
+
+        h1 {
+            color: #f5c542;
+            margin-top: 0;
+        }
+
+        .success-box {
+            background-color: #224d22;
+            color: #ddffdd;
+            border: 1px solid #336b33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        strong {
+            color: white;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 22px;
+            background-color: #f5c542;
+            color: #171b1b;
+            border-radius: 7px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: #e4b52f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Slot Booked Successfully! 🎉</h1>
+    
+    <div class="success-box">
+        Your time slot for <strong>{{ event.name }}</strong> has been confirmed.
+    </div>
+
+    <p><strong>Location:</strong> {{ event.location }}</p>
+    <p><strong>Slot Time:</strong> {{ slot.start_time|date:"d M Y, g:i A" }} to {{ slot.end_time|date:"g:i A" }}</p>
+    <p><strong>Total Paid:</strong> ₹{{ total_amount }}</p>
+    <p><strong>Status:</strong> {{ booking.status }}</p>
+
+    <a href="{% url 'events' %}" class="back-button">
+        ← Back to All Events
+    </a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Events | Plaza</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 30px 5%;
+            font-family: Arial, sans-serif;
+            background-color: #101313;
+            color: white;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .event-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 22px;
+        }
+
+        .event-card {
+            background-color: #191d1d;
+            border: 1px solid #292e2e;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .event-info {
+            padding: 18px;
+        }
+
+        .event-info h2 {
+            font-size: 20px;
+        }
+
+        .event-info p {
+            color: #b8c0c0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .event-type {
+            color: #f4d35e;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .view-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 9px 14px;
+            background-color: #f4d35e;
+            color: #151515;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .view-button:hover {
+            background-color: #e9c33e;
+        }
+
+        .empty-message {
+            color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Discover Events</h1>
+
+    <div class="event-container">
+
+        {% for event in events %}
+
+            <div class="event-card">
+
+                <div class="event-info">
+
+                    <span class="event-type">
+                        {{ event.get_type_display }}
+                    </span>
+
+                    <h2>{{ event.name }}</h2>
+
+                    <p>{{ event.desc|truncatewords:20 }}</p>
+
+                    <p>
+                        <strong>Location:</strong>
+                        {{ event.location }}
+                    </p>
+
+                    <p>
+                        <strong>Starts:</strong>
+                        {{ event.start_time|date:"d M Y, g:i A" }}
+                    </p>
+
+                    <p>
+                        <strong>Ends:</strong>
+                        {{ event.end_time|date:"d M Y, g:i A" }}
+                    </p>
+
+                    <p>
+                        <strong>Price:</strong>
+                        ₹{{ event.price }}
+                    </p>
+
+                    <a class="view-button" href="{% url 'event_detail' event.id %}">
+                        Book Now
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <p class="empty-message">
+                No events available right now.
+            </p>
+
+        {% endfor %}
+
+    </div>
+
+</body>
+</html>

@@ -1,64 +1,334 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Home | Plaza</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        /* Account bar */
+        .account-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 30px;
+            padding: 14px 18px;
+            background: white;
+            border: 1px solid #e2e4e8;
+            border-radius: 10px;
+        }
+
+        .account-info {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .account-info strong {
+            color: #222;
+        }
+
+        .role {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 5px 9px;
+            background: #e8edff;
+            color: #2949a5;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .logout-button {
+            padding: 9px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #bd2635;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .event-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .event-card {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            border: 1px solid #e2e4e8;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .event-card h2 {
+            margin-top: 12px;
+            font-size: 21px;
+        }
+
+        .event-type {
+            display: inline-block;
+            padding: 5px 9px;
+            background: #e8edff;
+            color: #2949a5;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .description {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .event-details {
+            font-size: 14px;
+            line-height: 1.8;
+            margin-top: 15px;
+        }
+
+        .view-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 16px;
+            background: #f4d35e;
+            color: #222;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .view-button:hover {
+            background: #e5c34e;
+        }
+
+        .empty-message {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            color: #666;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+        }
+
+        .view-all-button {
+            color: #2949a5;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .view-all-button:hover {
+            text-decoration: underline;
+        }
+        .org-dashboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 25px;
+    margin-bottom: 35px;
+    background: #222d42;
+    color: white;
+    border-radius: 10px;
+    border: 1px solid #344565;
+}
+
+.org-dashboard h2 {
+    margin: 0 0 8px;
+}
+
+.org-dashboard p {
+    margin: 0;
+    color: #c4ccda;
+    font-size: 14px;
+}
+
+.dashboard-button {
+    flex-shrink: 0;
+    padding: 11px 17px;
+    background: #f4d35e;
+    color: #222;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.dashboard-button:hover {
+    background: #e5c34e;
+}
+.account-button {
+    padding: 9px 15px;
+    background: #e8edff;
+    color: #2949a5;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.account-button:hover {
+    background: #d7e0ff;
+}
+    </style>
 </head>
+
 <body>
-    <header>
-        <h1>Plaza</h1>
-        <p>Welcome, {{ request.user.username }}!</p>
-        
-        <form action="{% url 'logout' %}" method="post">
+
+<div class="container">
+
+    <!-- Account information -->
+    <div class="account-bar">
+
+        <div class="account-info">
+            Logged in as:
+            <strong>{{ request.user.username }}</strong>
+
+            {% if org %}
+                <span class="role">Organization</span>
+            {% else %}
+                <span class="role">Regular User</span>
+            {% endif %}
+        </div>
+
+        <form method="POST" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <button type="submit" class="logout-button">
+                Logout
+            </button>
         </form>
-    </header>
-    <hr>
-    <main>
-    <section>
-        <h2>Events</h2>
-        {% for event in events %}
-            <article>
-                <h3>{{ event.name }}</h3>
-                <p>{{ event.desc }}</p>
-                <p>
-                    <strong>Location:</strong> {{ event.location }}
-                </p>
-
-                <p>
-                    <strong>Type:</strong>
-                    {% if event.type == "SLOT" %}
-                        Slot-based
-                    {% else %}
-                        Ticket-based
-                    {% endif %}
-                </p>
-
-                <p>
-                    <strong>Starts:</strong> {{ event.start_time }}
-                </p>
-
-                <p>
-                    <strong>Ends:</strong> {{ event.end_time }}
-                </p>
-
-                <hr>
-            </article>
-        {% empty %}
-            <p>No events available right now.</p>
-        {% endfor %}
-    </section>
-        {% if org %}
-        <section>
+    <a href="/plaza/account/" class="account-button">
+        My Account
+    </a>
+    </div>
+    
+    {% if org %}
+    <section class="org-dashboard">
+        <div>
             <h2>Organization Dashboard</h2>
-            <p>Manage your organization's events.</p>
-            <a href="{% url 'org_dashboard' %}">
-                Open Dashboard
-            </a>
-        </section>
-        {% endif %}
-    </main>
+            <p>Manage your events, bookings and organization activities.</p>
+        </div>
+
+        <a href="/plaza/org-dashboard/" class="dashboard-button">
+            Open Dashboard →
+        </a>
+    </section>
+{% endif %}
+
+    <header class="header">
+        <h1>Discover Events</h1>
+        <p>Explore what's happening next.</p>
+    </header>
+
+
+    <section>
+        <h2>Upcoming Events</h2>
+        <a href="{% url 'events' %}" class="view-all-button">
+            View All Events →
+        </a>
+        <div class="event-grid">
+
+            {% for event in events %}
+
+                <article class="event-card">
+
+                    <span class="event-type">
+                        {{ event.get_type_display }}
+                    </span>
+
+                    <h2>{{ event.name }}</h2>
+
+                    <p class="description">
+                        {{ event.desc|truncatewords:25 }}
+                    </p>
+
+                    <div class="event-details">
+
+                        <p>
+                            <strong>Location:</strong>
+                            {{ event.location }}
+                        </p>
+
+                        <p>
+                            <strong>Starts:</strong>
+                            {{ event.start_time|date:"d M Y, g:i A" }}
+                        </p>
+
+                        <p>
+                            <strong>Ends:</strong>
+                            {{ event.end_time|date:"d M Y, g:i A" }}
+                        </p>
+
+                        <p>
+                            <strong>Price:</strong>
+                            ₹{{ event.price }}
+                        </p>
+
+                        <a class="view-button"
+                           href="{% url 'event_detail' event.id %}">
+                            Book Now
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% empty %}
+
+                <div class="empty-message">
+                    <p>No upcoming events available right now.</p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+    </section>
+
+</div>
+
 </body>
 </html>

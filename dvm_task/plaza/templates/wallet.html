@@ -1,32 +1,176 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Wallet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Wallet | Plaza</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 35px 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #222;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .back-button {
+            color: #2949a5;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+
+        .wallet-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #e2e4e8;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .wallet-card h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 9px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d5d9df;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #2949a5;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 13px;
+            background: #f4d35e;
+            color: #222;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background: #e5c34e;
+        }
+
+        .note {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #888;
+            line-height: 1.5;
+        }
+    </style>
 </head>
+
 <body>
-    <a href="{% url 'account' %}"> Account </a>
 
-    <h1>Manage Wallet</h1>
-    <input type="hidden" name="transaction_type" value="CREDIT">
-    <form method="POST" action="{% url 'wallet' %}">
-        {% csrf_token %}
-        <input type="hidden" name="transaction_type" value="CREDIT">
-        <div>
-            <label for="amount"><strong>Amount (₹):</strong></label><br>
-            <input 
-                type="number" 
-                step="1" 
-                name="amount" 
-                id="amount" 
-                placeholder="0.00" 
-                required 
-                min="1"
+<div class="container">
+
+    <header class="header">
+        <h1>Manage Wallet</h1>
+
+        <a href="{% url 'account' %}" class="back-button">
+            ← My Account
+        </a>
+    </header>
+
+    <section class="wallet-card">
+
+        <h2>Add Money to Wallet</h2>
+
+        <p class="description">
+            Enter the amount you wish to add to your Plaza wallet.
+        </p>
+
+        <form method="POST" action="{% url 'wallet' %}">
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="transaction_type"
+                value="CREDIT"
             >
-        </div>
+
+            <div class="form-group">
+
+                <label for="amount">
+                    Amount (₹)
+                </label>
+
+                <input
+                    type="number"
+                    step="1"
+                    name="amount"
+                    id="amount"
+                    placeholder="Enter amount"
+                    min="1"
+                    required
+                >
+
+            </div>
+
+            <button type="submit" class="submit-button">
+                Add Money
+            </button>
+
+        </form>
 
 
-        <button type="submit">Submit Transaction</button>
-    </form>
+    </section>
+
+</div>
+
 </body>
 </html>
+```
