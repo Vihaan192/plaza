@@ -128,8 +128,6 @@ TicketBooking }|--|| User: ""
 TicketBooking }|--|| Event: ""
 ```
 
-## Installation Guide and how to run locally
-
 ## Getting Started & Installation Guide
 ### Prerequisites
 Make sure you have the following installed on your system:
