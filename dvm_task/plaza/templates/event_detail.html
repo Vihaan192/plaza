@@ -127,11 +127,18 @@
             margin-top: 15px;
         }
 
+        /* Slot Buttons & Interactive Radio Wrappers */
+        .slot-radio {
+            display: none;
+        }
+
         .slot {
+            display: inline-block;
             padding: 12px 18px;
             border-radius: 8px;
             border: 1px solid;
             font-size: 14px;
+            user-select: none;
         }
 
         .available {
@@ -146,12 +153,57 @@
             color: #101313;
         }
 
+        .slot-radio:checked + .slot.available {
+            background: #f5c542;
+            color: #121212;
+            font-weight: bold;
+            box-shadow: 0 0 8px rgba(245, 197, 66, 0.4);
+        }
+
         .unavailable {
             background: #292929;
             color: #777;
             border-color: #444;
             text-decoration: line-through;
             cursor: not-allowed;
+        }
+
+        /* Confirmation Panel Styles */
+        .confirmation-panel {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #191d1d;
+            border: 1px solid #f5c542;
+            border-radius: 10px;
+        }
+
+        .confirmation-panel p {
+            margin: 0 0 15px 0;
+            color: #ffffff;
+            font-size: 15px;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-cancel {
+            padding: 10px 18px;
+            background-color: #303838;
+            color: #f1f1f1;
+            border: 1px solid #505858;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-cancel:hover {
+            background-color: #414747;
+        }
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -219,28 +271,30 @@
                 <h2>Slots for {{ selected_date|date:"d M Y" }}</h2>
             {% endif %}
 
-            <form method="POST" action="{% url 'book_slot' event.id %}">
+            <form method="POST" action="{% url 'book_slot' event.id %}" id="slotBookingForm">
                 {% csrf_token %}
 
                 <div class="slots-container">
                     {% for slot in slots %}
                         {% if slot.is_available %}
-                            <button
-                                type="submit"
-                                name="slot_id"
-                                value="{{ slot.id }}"
-                                class="slot available"
-                            >
-                                {{ slot.start_time|date:"g:i A" }} - {{ slot.end_time|date:"g:i A" }}
-                            </button>
+                            <label>
+                                <input 
+                                    type="radio" 
+                                    name="slot_id" 
+                                    value="{{ slot.id }}" 
+                                    class="slot-radio" 
+                                    data-time="{{ slot.start_time|date:'g:i A' }} - {{ slot.end_time|date:'g:i A' }}"
+                                    required 
+                                    onchange="handleSlotSelection(this)"
+                                >
+                                <span class="slot available">
+                                    {{ slot.start_time|date:"g:i A" }} - {{ slot.end_time|date:"g:i A" }}
+                                </span>
+                            </label>
                         {% else %}
-                            <button
-                                type="button"
-                                class="slot unavailable"
-                                disabled
-                            >
+                            <span class="slot unavailable">
                                 {{ slot.start_time|date:"g:i A" }} - {{ slot.end_time|date:"g:i A" }} (Booked)
-                            </button>
+                            </span>
                         {% endif %}
                     {% empty %}
                         <p class="empty-message">
@@ -248,45 +302,61 @@
                         </p>
                     {% endfor %}
                 </div>
+
+                <!-- Hidden Confirmation Step -->
+                <div id="confirmPanel" class="confirmation-panel hidden">
+                    <p>
+                        ⚠️ Selected Slot: <strong id="selectedSlotText" style="color: #f5c542;"></strong><br>
+                        Are you sure you want to confirm this booking?
+                    </p>
+                    <div class="confirm-actions">
+                        <button type="button" class="btn-cancel" onclick="resetSlotSelection()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="book-button" style="margin-top: 0;">
+                            Confirm Booking
+                        </button>
+                    </div>
+                </div>
             </form>
 
         {% elif event.type == "TICKET" %}
 
-    <h2>Book Tickets</h2>
+            <h2>Book Tickets</h2>
 
-    {% if event.capacity and event.capacity > 0 %}
-        <form method="POST" action="{% url 'book_ticket' event.id %}">
-            {% csrf_token %}
+            {% if event.capacity and event.capacity > 0 %}
+                <form method="POST" action="{% url 'book_ticket' event.id %}">
+                    {% csrf_token %}
 
-            <label for="quantity">
-                Number of tickets:
-            </label>
+                    <label for="quantity">
+                        Number of tickets:
+                    </label>
 
-            <br><br>
+                    <br><br>
 
-            <input
-                type="number"
-                name="quantity"
-                id="quantity"
-                min="1"
-                max="{{ event.capacity }}"
-                value="1"
-                required
-            >
+                    <input
+                        type="number"
+                        name="quantity"
+                        id="quantity"
+                        min="1"
+                        max="{{ event.capacity }}"
+                        value="1"
+                        required
+                    >
 
-            <br>
+                    <br>
 
-            <button type="submit" class="book-button">
-                Book Tickets
-            </button>
-        </form>
-    {% else %}
-        <div style="background: #4d2222; padding: 15px; border-radius: 6px; color: #fff; margin-top: 15px;">
-            <strong>Sold Out!</strong> There are no tickets remaining for this event.
-        </div>
-    {% endif %}
+                    <button type="submit" class="book-button">
+                        Book Tickets
+                    </button>
+                </form>
+            {% else %}
+                <div style="background: #4d2222; padding: 15px; border-radius: 6px; color: #fff; margin-top: 15px;">
+                    <strong>Sold Out!</strong> There are no tickets remaining for this event.
+                </div>
+            {% endif %}
 
-{% endif %}
+        {% endif %}
 
     </div>
 
@@ -295,6 +365,20 @@
     </a>
 
 </div>
+
+<script>
+    function handleSlotSelection(inputElement) {
+        const slotTimeText = inputElement.getAttribute('data-time');
+        document.getElementById('selectedSlotText').innerText = slotTimeText;
+        document.getElementById('confirmPanel').classList.remove('hidden');
+    }
+
+    function resetSlotSelection() {
+        const radios = document.querySelectorAll('.slot-radio');
+        radios.forEach(r => r.checked = false);
+        document.getElementById('confirmPanel').classList.add('hidden');
+    }
+</script>
 
 </body>
 </html>

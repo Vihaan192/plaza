@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'plaza',
     'django_extensions',
+    'django_erd_generator',
 ]
 
 MIDDLEWARE = [
