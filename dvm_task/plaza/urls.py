@@ -16,4 +16,5 @@ urlpatterns = [
     path("events/<int:event_id>/", event_detail_view, name="event_detail"),
     path("events/<int:event_id>/book_ticket/",book_ticket_view,name = "book_ticket"),
     path("events/<int:event_id>/book_slot/",book_slot_view,name = "book_slot"),
+    path("home/bookings" , bookings_view , name = 'booking'),
 ]

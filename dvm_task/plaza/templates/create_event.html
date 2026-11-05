@@ -81,11 +81,39 @@
             {% endfor %}
         </div>
 
-        <button type="submit" style="margin-top: 15px;">Publish Event & Generate Slots</button>
-    </form>
+
+        <button type="button" id="add-schedule-btn" style="background-color: #303838; color: #f5c542; border: 1px dashed #f5c542; margin-top: 10px;">
+            + Add Another Operating Schedule
+        </button>
+            <button type="submit" style="margin-top: 15px;">Publish Event & Generate Slots</button>
+        </form>
 
     <a href="{% url 'org_dashboard' %}" class="back-link">← Back to Dashboard</a>
 </div>
+<script>
+    document.getElementById('add-schedule-btn').addEventListener('click', function() {
+        const formList = document.getElementById('schedule-form-list');
+        const totalFormsInput = document.querySelector('#id_schedules-TOTAL_FORMS'); 
+        let formCount = parseInt(totalFormsInput.value);
+        const firstRow = formList.querySelector('.schedule-row');
+        const newRow = firstRow.cloneNode(true);
+        const htmlRegex = /schedules-(\d+)-/g;
+        newRow.innerHTML = newRow.innerHTML.replace(htmlRegex, `schedules-${formCount}-`);
 
+        const inputs = newRow.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            if (input.type !== 'checkbox' && input.type !== 'hidden') {
+                input.value = '';
+            } else if (input.type === 'checkbox') {
+                input.checked = false;
+            }
+        });
+
+        formList.appendChild(newRow);
+
+        // Update management form total count
+        totalFormsInput.value = formCount + 1;
+    });
+</script>
 </body>
 </html>

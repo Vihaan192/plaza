@@ -75,13 +75,26 @@
         .empty-message {
             color: #aaa;
         }
+        .back-button {
+            display: inline-block;
+            margin-top: 25px;
+            color: #f5c542;
+            text-decoration: none;
+            margin-bottom: 25px;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
 <body>
 
     <h1>Discover Events</h1>
-
+    <a href="{% url 'home' %}" class="back-button">
+        ← Back to Home
+    </a>
     <div class="event-container">
 
         {% for event in events %}

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,9 +13,9 @@
         body {
             margin: 0;
             padding: 30px;
-            font-family: Arial, sans-serif;
-            background-color: #f4f5f7;
-            color: #222;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
         }
 
         .container {
@@ -32,34 +31,35 @@
             gap: 18px;
             margin-bottom: 30px;
             padding: 14px 18px;
-            background: white;
-            border: 1px solid #e2e4e8;
+            background: #1e1e1e;
+            border: 1px solid #2d2d2d;
             border-radius: 10px;
         }
 
         .account-info {
             font-size: 14px;
-            color: #555;
+            color: #9e9e9e;
         }
 
         .account-info strong {
-            color: #222;
+            color: #ffffff;
         }
 
         .role {
             display: inline-block;
             margin-left: 6px;
             padding: 5px 9px;
-            background: #e8edff;
-            color: #2949a5;
+            background: #2a2515;
+            color: #f5c542;
             border-radius: 5px;
             font-size: 12px;
             font-weight: bold;
+            border: 1px solid #4a3d14;
         }
 
         .logout-button {
             padding: 9px 15px;
-            background: #dc3545;
+            background: #b71c1c;
             color: white;
             border: none;
             border-radius: 6px;
@@ -68,7 +68,7 @@
         }
 
         .logout-button:hover {
-            background: #bd2635;
+            background: #c62828;
         }
 
         .header {
@@ -77,73 +77,97 @@
 
         .header h1 {
             margin-bottom: 8px;
+            color: #ffffff;
         }
 
         .header p {
-            color: #666;
+            color: #9e9e9e;
+            margin: 0;
         }
 
+        /* Event Grid Layout */
         .event-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
+            align-items: stretch;
         }
 
         .event-card {
-            background: white;
+            background: #1e1e1e;
             padding: 22px;
             border-radius: 10px;
-            border: 1px solid #e2e4e8;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+            border: 1px solid #2d2d2d;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .event-card h2 {
             margin-top: 12px;
+            margin-bottom: 10px;
             font-size: 21px;
+            color: #ffffff;
         }
 
         .event-type {
             display: inline-block;
             padding: 5px 9px;
-            background: #e8edff;
-            color: #2949a5;
+            background: #2a2515;
+            color: #f5c542;
             border-radius: 5px;
             font-size: 12px;
             font-weight: bold;
+            border: 1px solid #4a3d14;
         }
 
         .description {
-            color: #555;
+            color: #b0b0b0;
             line-height: 1.5;
+            margin-top: 0;
+            flex-grow: 1;
         }
 
         .event-details {
             font-size: 14px;
             line-height: 1.8;
             margin-top: 15px;
+            color: #cccccc;
+        }
+
+        .event-details p {
+            margin: 4px 0;
+        }
+
+        .event-details strong {
+            color: #ffffff;
         }
 
         .view-button {
-            display: inline-block;
-            margin-top: 10px;
+            display: block;
+            text-align: center;
+            margin-top: 15px;
             padding: 10px 16px;
-            background: #f4d35e;
-            color: #222;
+            background: #f5c542;
+            color: #121212;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
         }
 
         .view-button:hover {
-            background: #e5c34e;
+            background: #e5b838;
         }
 
         .empty-message {
-            background: white;
+            background: #1e1e1e;
             padding: 25px;
             border-radius: 10px;
-            color: #666;
+            border: 1px solid #2d2d2d;
+            color: #9e9e9e;
         }
+
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -153,10 +177,11 @@
 
         .section-header h2 {
             margin: 0;
+            color: #ffffff;
         }
 
         .view-all-button {
-            color: #2949a5;
+            color: #f5c542;
             text-decoration: none;
             font-weight: bold;
             font-size: 14px;
@@ -165,56 +190,114 @@
         .view-all-button:hover {
             text-decoration: underline;
         }
+
         .org-dashboard {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    padding: 22px 25px;
-    margin-bottom: 35px;
-    background: #222d42;
-    color: white;
-    border-radius: 10px;
-    border: 1px solid #344565;
-}
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 22px 25px;
+            margin-bottom: 35px;
+            background: #191c24;
+            color: white;
+            border-radius: 10px;
+            border: 1px solid #2d3748;
+        }
 
-.org-dashboard h2 {
-    margin: 0 0 8px;
-}
+        .org-dashboard h2 {
+            margin: 0 0 8px;
+            color: #ffffff;
+        }
 
-.org-dashboard p {
-    margin: 0;
-    color: #c4ccda;
-    font-size: 14px;
-}
+        .org-dashboard p {
+            margin: 0;
+            color: #a0aec0;
+            font-size: 14px;
+        }
 
-.dashboard-button {
-    flex-shrink: 0;
-    padding: 11px 17px;
-    background: #f4d35e;
-    color: #222;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
-}
+        .dashboard-button {
+            flex-shrink: 0;
+            padding: 11px 17px;
+            background: #f5c542;
+            color: #121212;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
 
-.dashboard-button:hover {
-    background: #e5c34e;
-}
-.account-button {
-    padding: 9px 15px;
-    background: #e8edff;
-    color: #2949a5;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 14px;
-}
+        .dashboard-button:hover {
+            background: #e5b838;
+        }
 
-.account-button:hover {
-    background: #d7e0ff;
-}
+        .account-button {
+            padding: 9px 15px;
+            background: #2a2515;
+            color: #f5c542;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid #4a3d14;
+        }
+
+        .account-button:hover {
+            background: #383018;
+        }
+        /* Latest Bookings Table Styling - Dark Yellow Theme */
+        .table-responsive {
+            background: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-top: 15px;
+        }
+
+        .bookings-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .bookings-table th {
+            background: #191c24; /* Matches your org-dashboard dark tone or card header style */
+            color: #f5c542;      /* Plaza Yellow theme accent */
+            padding: 14px 18px;
+            font-weight: 600;
+            border-bottom: 1px solid #2d2d2d;
+            letter-spacing: 0.5px;
+        }
+
+        .bookings-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid #2d2d2d;
+            color: #cccccc;
+        }
+
+        .bookings-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .bookings-table tr:hover {
+            background: rgba(245, 197, 66, 0.03); /* Subtle yellow tint on row hover */
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-confirmed {
+            background: #2a2515;
+            color: #f5c542;
+            border: 1px solid #4a3d14;
+        }
     </style>
+    
 </head>
 
 <body>
@@ -223,7 +306,6 @@
 
     <!-- Account information -->
     <div class="account-bar">
-
         <div class="account-info">
             Logged in as:
             <strong>{{ request.user.username }}</strong>
@@ -235,15 +317,16 @@
             {% endif %}
         </div>
 
-        <form method="POST" action="{% url 'logout' %}">
+        <a href="/plaza/account/" class="account-button">
+            My Account
+        </a>
+
+        <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
             {% csrf_token %}
             <button type="submit" class="logout-button">
                 Logout
             </button>
         </form>
-    <a href="/plaza/account/" class="account-button">
-        My Account
-    </a>
     </div>
     
     {% if org %}
@@ -257,37 +340,39 @@
             Open Dashboard →
         </a>
     </section>
-{% endif %}
+    {% endif %}
 
     <header class="header">
         <h1>Discover Events</h1>
         <p>Explore what's happening next.</p>
     </header>
 
-
     <section>
-        <h2>Upcoming Events</h2>
-        <a href="{% url 'events' %}" class="view-all-button">
-            View All Events →
-        </a>
+        <div class="section-header">
+            <h2>Upcoming Events</h2>
+            <a href="{% url 'events' %}" class="view-all-button">
+                View All Events →
+            </a>
+        </div>
+
         <div class="event-grid">
 
             {% for event in events %}
 
                 <article class="event-card">
+                    <div>
+                        <span class="event-type">
+                            {{ event.get_type_display }}
+                        </span>
 
-                    <span class="event-type">
-                        {{ event.get_type_display }}
-                    </span>
+                        <h2>{{ event.name }}</h2>
 
-                    <h2>{{ event.name }}</h2>
-
-                    <p class="description">
-                        {{ event.desc|truncatewords:25 }}
-                    </p>
+                        <p class="description">
+                            {{ event.desc|truncatewords:25 }}
+                        </p>
+                    </div>
 
                     <div class="event-details">
-
                         <p>
                             <strong>Location:</strong>
                             {{ event.location }}
@@ -308,13 +393,10 @@
                             ₹{{ event.price }}
                         </p>
 
-                        <a class="view-button"
-                           href="{% url 'event_detail' event.id %}">
+                        <a class="view-button" href="{% url 'event_detail' event.id %}">
                             Book Now
                         </a>
-
                     </div>
-
                 </article>
 
             {% empty %}
@@ -327,7 +409,50 @@
 
         </div>
     </section>
-
+    <section style="margin-top: 50px;">
+    <div class="section-header">
+        <h2>Your Recent Ticket Bookings</h2>
+        <a href="{% url 'booking' %}" class="view-all-button">
+                View All Bookings →
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="bookings-table">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Event Name</th>
+                    <th>Quantity</th>
+                    <th>Total Paid</th>
+                    <th>Consumed?</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in latest_bookings %}
+                    <tr>
+                        <td>#{{ booking.id }}</td>
+                        <td><strong>{{ booking.event.name }}</strong></td>
+                        <td>{{ booking.quantity }}</td>
+                        <td>₹{{ booking.total_amount|default:booking.event.price }}</td>
+                        <td>
+                            {% if booking.consumed == "YES" or booking.consumed == "Yes" or booking.consumed == True %}
+                                <span class="status-badge status-confirmed">Yes</span>
+                            {% else %}
+                                <span style="color: #9e9e9e;">No</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #9e9e9e; padding: 30px;">
+                            You haven't made any bookings yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 </div>
 
 </body>

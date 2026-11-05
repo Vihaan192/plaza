@@ -15,9 +15,15 @@ from .forms import EventCreationForm, ScheduleFormSet
 def home_view(request):
     org =  request.user.groups.filter(name = "Organization").exists()
     events = Event.objects.filter(end_time__gt=timezone.now()).order_by("end_time")[:5]
+    latest_bookings = []
+    if request.user.is_authenticated:
+        latest_bookings = TicketBooking.objects.filter(
+            user=request.user # or attendee=request.user depending on your field name
+        ).select_related('event').order_by('-id')[:5]
     return render(request, 'home.html', {
         'org' :  org,
         'events': events,
+        'latest_bookings' : latest_bookings,
     })
 
 @login_required
@@ -69,31 +75,22 @@ def create_event_view(request):
             event = form.save(commit=False)
             event.created_by = request.user
 
-            # CASE A: Slot-based event (requires schedules & slice generation)
             if event.type == "SLOT":
                 if formset.is_valid():
                     try:
-                        # 1. Save parent event first to generate an ID
                         event.save()
-                        
-                        # 2. Link formset child rows to this event and save them
                         formset.instance = event
                         formset.save()
-                        
-                        # 3. Automatically slice and generate time slots
                         create_event_slots(event)
-                        
                         messages.success(request, f"Slot event '{event.name}' and its slots created successfully!")
                         return redirect('org_dashboard')
                     
-                    except ValidationError as e:
-                        # If slot generation fails rules (e.g. times don't divide evenly)
-                        event.delete()  # Rollback
-                        messages.error(request, f"Slot Generation Error: {e.message if hasattr(e, 'message') else e}")
+                    except ValidationError:
+                        event.delete()  
+                        messages.error(request, f"Slot Generation Error")
                 else:
-                    messages.error(request, "Please fix the schedule errors below.")
+                    messages.error(request, "Errors in schedule stubid.")
             
-            # CASE B: Standard Ticket-based event
             else:
                 event.save()
                 messages.success(request, f"Ticket event '{event.name}' created successfully!")
@@ -159,7 +156,6 @@ def book_ticket_view(request, event_id):
         messages.error(request, "You must book at least 1 ticket.")
         return redirect("event_detail", event_id=event.id)
 
-    # Fix for sold out / None capacity bug causing 500 errors
     if event.capacity is None or event.capacity <= 0:
         messages.error(request, "Sorry, this event is completely sold out or capacity is not configured.")
         return redirect("event_detail", event_id=event.id)
@@ -187,7 +183,6 @@ def book_ticket_view(request, event_id):
         )
         return redirect("event_detail", event_id=event.id)
 
-    # Process Booking
     event.capacity -= quantity
     event.save(update_fields=["capacity"])
 
@@ -208,8 +203,7 @@ def book_ticket_view(request, event_id):
     )
 
     messages.success(request, f"Successfully booked {quantity} ticket(s) for {event.name}!")
-    
-    # Success renders the dedicated confirmation receipt page directly
+
     return render(request, "book_ticket.html", {
         "booking": booking,
         "event": event,
@@ -254,11 +248,9 @@ def book_slot_view(request,event_id):
         )
         return redirect("event_detail", event_id=event.id)
 
-    # 4. Mark Slot as Booked
     slot.is_available = False
     slot.save(update_fields=["is_available"])
 
-    # 5. Create Slot Booking Record
     booking = SlotBooking.objects.create(
         user=user,
         slot=slot,
@@ -268,7 +260,6 @@ def book_slot_view(request,event_id):
         status="CONFIRMED"
     )
 
-    # 6. Deduct from User Ledger via Transaction
     Transaction.objects.create(
         user=user,
         amount=total_amount,
@@ -297,7 +288,6 @@ def confirm_ticket_view(request):
     selected_event = None
     ticket_bookings = []
 
-    # 1. Search for ticket events created by this organizer
     if event_query:
         my_events = Event.objects.filter(
             created_by=request.user,
@@ -307,14 +297,12 @@ def confirm_ticket_view(request):
     else:
         my_events = Event.objects.filter(created_by=request.user, type="TICKET")
 
-    # 2. If a specific event is selected, fetch its bookings
     if selected_event_id:
         selected_event = get_object_or_404(
             Event, id=selected_event_id, created_by=request.user, type="TICKET"
         )
         ticket_bookings = TicketBooking.objects.filter(event=selected_event).select_related('user')
 
-    # 3. Handle POST action to mark a ticket booking as consumed
     if request.method == "POST":
         booking_id = request.POST.get("booking_id")
         booking = get_object_or_404(
@@ -324,7 +312,6 @@ def confirm_ticket_view(request):
         booking.save(update_fields=["consumed"])
         messages.success(request, f"Booking #{booking.id} ({booking.user.username}) consumed")
 
-        # Redirect back keeping the selected event active
         return redirect(f"{request.path}?event_id={selected_event_id}&event_q={event_query}")
 
     return render(request, "confirm_tickets.html", {
@@ -337,5 +324,25 @@ def confirm_ticket_view(request):
 def analytics_view(request):
     if not request.user.groups.filter(name="Organization").exists():
         raise PermissionDenied("Thou is an impostor among men")
+    events = Event.objects.filter(created_by = request.user)
+    ticket_revenue = TicketBooking.objects.filter(event__created_by = request.user,event__type = "TICKET").aggregate(total = Sum('total_amount'))['total'] or 0
+    slot_revenue = SlotBooking.objects.filter(slot__event__created_by = request.user,slot__event__type = "SLOT").aggregate(total = Sum('slot__event__price'))['total'] or 0 
+    consumed_tickets = TicketBooking.objects.filter(consumed__iexact = "YES").aggregate(total = Sum('quantity'))['total'] or 0 
+    total_tickets = TicketBooking.objects.all().aggregate(total = Sum('quantity'))['total'] or 0 
+    return render(request,"analytics.html",{
+        "ticket_revenue":ticket_revenue,
+        "slot_revenue":slot_revenue,
+        "consumed_tickets":consumed_tickets,
+        "total_tickets" : total_tickets,
+    })
     pass
 
+def bookings_view(request):
+    ticket_bookings = TicketBooking.objects.filter(user=request.user).select_related('event').order_by('-created_at')
+    slot_bookings = SlotBooking.objects.filter(user=request.user).select_related('slot__event').order_by('-created_at')
+    
+    context = {
+        'ticket_bookings': ticket_bookings,
+        'slot_bookings': slot_bookings,
+    }
+    return render(request, "bookings.html", context)

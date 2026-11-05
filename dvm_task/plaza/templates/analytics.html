@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Analytics | Plaza</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #ffffff;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .card-title {
+            font-size: 14px;
+            color: #9e9e9e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 10px 0;
+        }
+        .card-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #f5c542;
+            margin: 0;
+        }
+        .card-value.success {
+            color: #4caf50;
+        }
+        .back-button {
+            display: inline-block;
+            margin-top: 25px;
+            color: #f5c542;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Organizer Analytics</h1>
+
+        <div class="metrics-grid">
+            <div class="card">
+                <p class="card-title">Ticket Revenue</p>
+                <p class="card-value">Rs {{ ticket_revenue|default:"0.00" }}</p>
+            </div>
+            <div class="card">
+                <p class="card-title">Slot Revenue</p>
+                <p class="card-value">Rs {{ slot_revenue|default:"0.00" }}</p>
+            </div>
+            <div class="card">
+                <p class="card-title">Consumed Tickets</p>
+                <p class="card-value success">{{ consumed_tickets }} / {{ total_tickets }}</p>
+            </div>
+        </div>
+        <a href="{% url 'org_dashboard' %}" class="back-button">
+        ← Back to Dashboard
+    </a>
+    </div>
+
+</body>
+</html>
