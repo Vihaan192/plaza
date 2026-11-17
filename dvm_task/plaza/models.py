@@ -33,6 +33,17 @@ class Event(models.Model):
     location = models.CharField(max_length = 100)
     created_by = models.ForeignKey(User,on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        super().clean()
+        if self.start_time and self.end_time:
+            if self.end_time <= self.start_time:
+                raise ValidationError("Invalid start endtimes.")
+            
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.name
 

@@ -1,208 +1,138 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-[#0d0e12]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Account | Plaza</title>
 
+    <!-- Google Font: Yellowtail -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Yellowtail&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        yellowtail: ['Yellowtail', 'cursive'],
+                    },
+                    colors: {
+                        plaza: {
+                            gold: '#f5c542',
+                            'gold-hover': '#e5b838',
+                            dark: '#0d0e12',
+                            panel: '#151821',
+                            card: '#1c202d',
+                            border: '#262b3a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 35px 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f4f5f7;
-            color: #222;
-        }
-
-        .container {
-            max-width: 850px;
-            margin: auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .header h1 {
-            margin: 0;
-        }
-
-        .back-button {
-            color: #2949a5;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .card {
-            background: white;
-            padding: 25px;
-            margin-bottom: 22px;
-            border-radius: 10px;
-            border: 1px solid #e2e4e8;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
-        }
-
-        .balance-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .balance-card h2 {
-            margin: 0 0 8px;
-            color: #666;
-            font-size: 16px;
-        }
-
-        .balance {
-            font-size: 30px;
-            font-weight: bold;
-            color: #222;
-        }
-
-        .wallet-button {
-            display: inline-block;
-            padding: 12px 18px;
-            background: #f4d35e;
-            color: #222;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        .wallet-button:hover {
-            background: #e5c34e;
-        }
-
-        .transaction-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .transaction-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            padding: 16px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .transaction-list li:last-child {
-            border-bottom: none;
-        }
-
-        .transaction-date {
-            color: #777;
-            font-size: 13px;
-            margin-top: 5px;
-        }
-
-        .credit {
-            color: #198754;
-            font-weight: bold;
-        }
-
-        .debit {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        .empty-message {
-            color: #777;
-            padding: 15px 0;
-        }
-
-        @media (max-width: 550px) {
-            .balance-card {
-                flex-direction: column;
-                align-items: flex-start;
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.96) translateY(10px);
             }
-
-            .transaction-list li {
-                align-items: flex-start;
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
             }
+        }
+
+        .animate-card {
+            animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
 </head>
+<body class="h-full font-sans text-gray-200 antialiased bg-plaza-dark selection:bg-plaza-gold selection:text-black flex flex-col justify-between min-h-screen p-6 md:p-10">
 
-<body>
+<div class="max-w-3xl w-full mx-auto space-y-6 animate-card">
 
-<div class="container">
-
-    <header class="header">
-        <h1>My Account</h1>
-        <a href="{% url 'home' %}" class="back-button">
-            ← Back to Home
-        </a>
-    </header>
-
-    <p>Welcome, <strong>{{ user.username }}</strong>!</p>
-    <section class="card balance-card">
-
-        <div>
-            <h2>Current Balance</h2>
-            <div class="balance">₹{{ balance }}</div>
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl overflow-hidden border border-plaza-gold/30 shrink-0 shadow-sm bg-black flex items-center justify-center">
+                <img src="{% static 'plaza_logo.jpg' %}" alt="Plaza Logo" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-wide">My Account</h1>
+                <p class="text-xs font-yellowtail text-plaza-gold text-lg tracking-wide">Plaza Portal</p>
+            </div>
         </div>
 
-        <a href="{% url 'wallet' %}" class="wallet-button">
-            + Manage Wallet
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-plaza-panel border border-plaza-border text-xs font-medium text-gray-300 hover:text-plaza-gold hover:border-plaza-gold/30 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <span>Back to Home</span>
         </a>
+    </div>
 
-    </section>
+    <!-- Welcome Greeting Banner -->
+    <div class="px-5 py-3.5 rounded-xl bg-plaza-panel/60 border border-plaza-border/60 text-sm text-gray-300">
+        Welcome back, <strong class="text-white font-semibold">{{ user.username }}</strong>!
+    </div>
 
-    <section class="card">
+    <!-- Balance & Wallet Action Card -->
+    <div class="bg-plaza-panel border border-plaza-border rounded-2xl p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row justify-between sm:items-center gap-6 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-plaza-gold/5 rounded-full blur-2xl pointer-events-none"></div>
 
-        <h2>Transaction History</h2>
+        <div>
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Current Balance</h2>
+            <div class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">₹{{ balance }}</div>
+        </div>
 
-        {% for tx in transactions %}
+        <a href="{% url 'wallet' %}" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-plaza-gold hover:bg-plaza-gold-hover text-black font-bold text-sm rounded-xl shadow-lg shadow-plaza-gold/10 transition-all duration-200 transform active:scale-[0.99] whitespace-nowrap">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>Manage Wallet</span>
+        </a>
+    </div>
 
-            <ul class="transaction-list">
-                <li>
+    <!-- Transaction History Card -->
+    <div class="bg-plaza-panel border border-plaza-border rounded-2xl p-6 sm:p-8 shadow-xl">
+        <h2 class="text-base font-bold text-white mb-4">Transaction History</h2>
 
-                    <div>
-                        <strong>
+        <ul class="divide-y divide-plaza-border">
+            {% for tx in transactions %}
+                <li class="py-3.5 flex items-center justify-between gap-4">
+                    <div class="space-y-0.5">
+                        <strong class="text-xs font-semibold uppercase tracking-wider text-gray-200">
                             {{ tx.transaction_type }}
                         </strong>
-
-                        <div class="transaction-date">
+                        <div class="text-[11px] text-gray-400">
                             {{ tx.created_at|date:"M d, Y · g:i A" }}
                         </div>
                     </div>
 
                     {% if tx.transaction_type == 'CREDIT' %}
-                        <span class="credit">
+                        <span class="text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-lg">
                             +₹{{ tx.amount }}
                         </span>
                     {% else %}
-                        <span class="debit">
+                        <span class="text-sm font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-lg">
                             -₹{{ tx.amount }}
                         </span>
                     {% endif %}
-
                 </li>
-            </ul>
+            {% empty %}
+                <li class="py-6 text-center text-xs text-gray-500">
+                    No transactions found yet.
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 
-        {% empty %}
+</div>
 
-            <p class="empty-message">
-                No transactions found yet.
-            </p>
-
-        {% endfor %}
-
-    </section>
-
+<!-- Footer Note -->
+<div class="text-center text-[11px] text-gray-500 mt-8">
+    &copy; Plaza Lifestyle. Account &amp; Transaction Details.
 </div>
 
 </body>

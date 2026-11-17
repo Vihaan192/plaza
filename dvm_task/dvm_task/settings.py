@@ -37,6 +37,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -142,3 +143,9 @@ MAILERS = {
 LOGIN_URL = '/plaza/login'
 LOGIN_REDIRECT_URL = '/plaza/home/'
 LOGOUT_REDIRECT_URL = '/plaza/login'
+
+#Jazzmin config
+JAZZMIN_UI_TWEAKS = {
+    "theme": "darkly", 
+    "dark_mode_theme": "darkly",
+}

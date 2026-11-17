@@ -1,0 +1,257 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#0d0e12]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Plaza{% endblock %}</title>
+
+    <!-- Google Font: Yellowtail -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Yellowtail&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        yellowtail: ['Yellowtail', 'cursive'],
+                    },
+                    colors: {
+                        plaza: {
+                            gold: '#f5c542',
+                            'gold-hover': '#e5b838',
+                            dark: '#0d0e12',
+                            panel: '#151821',
+                            card: '#1c202d',
+                            border: '#262b3a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Smooth Custom Easing for Sidebar Animation */
+        .sidebar-transition {
+            transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Collapsed Sidebar Rules */
+        .sidebar-collapsed {
+            width: 72px !important;
+        }
+
+        .sidebar-collapsed .sidebar-text,
+        .sidebar-collapsed .nav-section-title,
+        .sidebar-collapsed .dropdown-arrow,
+        .sidebar-collapsed .brand-text,
+        .sidebar-collapsed .user-info {
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: opacity 0.15s ease, width 0.25s ease;
+        }
+
+        .sidebar-collapsed .dropdown-menu-sidebar {
+            display: none !important;
+        }
+
+        .sidebar-collapsed .nav-item-content {
+            justify-content: center !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        /* Dropdown Animation */
+        .dropdown-menu-sidebar {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dropdown-menu-sidebar.open {
+            max-height: 260px;
+        }
+
+        /* Micro-interactions */
+        .nav-icon {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+        }
+
+        .nav-item-content:hover .nav-icon {
+            transform: scale(1.12);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full font-sans text-gray-200 antialiased selection:bg-plaza-gold selection:text-black">
+
+<div class="flex min-h-screen">
+    
+    <!-- Collapsible Sidebar -->
+    <aside id="sidebar" class="sidebar-transition relative flex flex-col h-screen w-64 bg-plaza-panel border-r border-plaza-border shrink-0 z-30">
+        
+        <!-- Sidebar Header -->
+        <div class="flex items-center justify-between h-16 px-4 border-b border-plaza-border overflow-hidden shrink-0">
+            <a href="{% url 'home' %}" class="flex items-center gap-2.5 text-plaza-gold min-w-0">
+                <!-- Plaza Logo Image -->
+                <div class="w-8 h-8 rounded-lg overflow-hidden border border-plaza-gold/30 shrink-0 shadow-sm bg-plaza-dark flex items-center justify-center">
+                    <img src="{% static 'plaza_logo.jpg' %}" alt="Plaza Logo" class="w-full h-full object-cover">
+                </div>
+                <!-- Yellowtail Styled Brand Text -->
+                <span class="brand-text font-yellowtail text-2xl tracking-wide text-plaza-gold pt-1 transition-opacity duration-200 truncate">Plaza</span>
+            </a>
+            
+            <!-- Tuck Sidebar Button -->
+            <button onclick="toggleSidebar()" class="p-2 rounded-lg text-gray-400 hover:text-plaza-gold hover:bg-plaza-border/40 transition-all shrink-0" title="Toggle Sidebar (Ctrl+B)">
+                <svg id="collapse-icon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="flex-1 overflow-y-auto px-3 py-5 space-y-6">
+            
+            <!-- Section 1: Overview -->
+            <div>
+                <div class="nav-section-title px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-500">Overview</div>
+                <ul class="space-y-1">
+                    <li>
+                        <a href="{% url 'home' %}" class="nav-item-content flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-plaza-gold hover:bg-plaza-gold/10 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <svg class="nav-icon w-5 h-5 text-gray-400 group-hover:text-plaza-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 00-1 1m-6 0h6"/></svg>
+                                <span class="sidebar-text truncate">Home</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'events' %}" class="nav-item-content flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-plaza-gold hover:bg-plaza-gold/10 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <svg class="nav-icon w-5 h-5 text-gray-400 group-hover:text-plaza-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <span class="sidebar-text truncate">Explore Events</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Section 2: Manage -->
+            <div>
+                <div class="nav-section-title px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-500">Manage</div>
+                <ul class="space-y-1">
+                    <!-- My Account Dropdown -->
+                    <li>
+                        <button onclick="toggleDropdown('userDropdown', this)" class="nav-item-content w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-plaza-gold hover:bg-plaza-gold/10 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <svg class="nav-icon w-5 h-5 text-gray-400 group-hover:text-plaza-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                <span class="sidebar-text truncate">My Account</span>
+                            </div>
+                            <svg class="dropdown-arrow w-3.5 h-3.5 text-gray-500 group-hover:text-plaza-gold transition-transform duration-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div id="userDropdown" class="dropdown-menu-sidebar ml-8 border-l border-plaza-border pl-2 my-1 space-y-1">
+                            <a href="{% url 'account' %}" class="block px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-plaza-border/40 rounded-md transition-colors">My Transactions</a>
+                            <a href="{% url 'booking' %}" class="block px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-plaza-border/40 rounded-md transition-colors">All Bookings</a>
+                            <a href="{% url 'wallet' %}" class="block px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-plaza-border/40 rounded-md transition-colors">Wallet & Credit</a>
+                        </div>
+                    </li>
+
+                    <!-- Organization Dropdown -->
+                    {% if org %}
+                    <li>
+                        <button onclick="toggleDropdown('orgDropdown', this)" class="nav-item-content w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-plaza-gold hover:bg-plaza-gold/10 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <svg class="nav-icon w-5 h-5 text-gray-400 group-hover:text-plaza-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                <span class="sidebar-text truncate">Organization Hub</span>
+                            </div>
+                            <svg class="dropdown-arrow w-3.5 h-3.5 text-gray-500 group-hover:text-plaza-gold transition-transform duration-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div id="orgDropdown" class="dropdown-menu-sidebar ml-8 border-l border-plaza-border pl-2 my-1 space-y-1">
+                            <a href="{% url 'org_dashboard' %}" class="block px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-plaza-border/40 rounded-md transition-colors">Overview</a>
+                            <a href="{% url 'create_event' %}" class="block px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-plaza-border/40 rounded-md transition-colors">Create Event</a>
+                            <a href="{% url 'confirm_tickets' %}" class="block px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-plaza-border/40 rounded-md transition-colors">Confirm Tickets</a>
+                            <a href="{% url 'analytics' %}" class="block px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-plaza-border/40 rounded-md transition-colors">Analytics</a>
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    <!-- Direct Logout Button -->
+                    <li>
+                        <form method="POST" action="{% url 'logout' %}" class="w-full">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-item-content w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <svg class="nav-icon w-5 h-5 text-red-400 group-hover:scale-110 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                    <span class="sidebar-text truncate">Logout</span>
+                                </div>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Viewport -->
+    <main class="flex-1 bg-plaza-dark overflow-y-auto p-6 md:p-10">
+        <div class="max-w-6xl mx-auto">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+</div>
+
+<script>
+    // Toggle Sidebar Collapse State
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const icon = document.getElementById('collapse-icon');
+        
+        sidebar.classList.toggle('sidebar-collapsed');
+        icon.classList.toggle('rotate-180');
+        
+        const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
+        localStorage.setItem('plaza_sidebar_collapsed', isCollapsed);
+    }
+
+    // Toggle Accordion Dropdowns
+    function toggleDropdown(id, btn) {
+        const dropdown = document.getElementById(id);
+        const arrow = btn.querySelector('.dropdown-arrow');
+        const isOpen = dropdown.classList.contains('open');
+
+        document.querySelectorAll('.dropdown-menu-sidebar').forEach(menu => menu.classList.remove('open'));
+        document.querySelectorAll('.dropdown-arrow').forEach(a => a.classList.remove('rotate-180'));
+
+        if (!isOpen) {
+            dropdown.classList.add('open');
+            if (arrow) arrow.classList.add('rotate-180');
+        }
+    }
+
+    // Keyboard shortcut (Ctrl + B or Cmd + B)
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+    });
+
+    // Restore saved state
+    if (localStorage.getItem('plaza_sidebar_collapsed') === 'true') {
+        document.getElementById('sidebar').classList.add('sidebar-collapsed');
+        document.getElementById('collapse-icon').classList.add('rotate-180');
+    }
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,176 +1,128 @@
-
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-[#0d0e12]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Wallet | Plaza</title>
 
+    <!-- Google Font: Yellowtail -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Yellowtail&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        yellowtail: ['Yellowtail', 'cursive'],
+                    },
+                    colors: {
+                        plaza: {
+                            gold: '#f5c542',
+                            'gold-hover': '#e5b838',
+                            dark: '#0d0e12',
+                            panel: '#151821',
+                            card: '#1c202d',
+                            border: '#262b3a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        * {
-            box-sizing: border-box;
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
-        body {
-            margin: 0;
-            padding: 35px 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f4f5f7;
-            color: #222;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .header h1 {
-            margin: 0;
-        }
-
-        .back-button {
-            color: #2949a5;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .back-button:hover {
-            text-decoration: underline;
-        }
-
-        .wallet-card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            border: 1px solid #e2e4e8;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
-        }
-
-        .wallet-card h2 {
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-
-        .description {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 9px;
-            font-weight: bold;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 13px;
-            border: 1px solid #d5d9df;
-            border-radius: 6px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .form-group input:focus {
-            border-color: #2949a5;
-        }
-
-        .submit-button {
-            width: 100%;
-            padding: 13px;
-            background: #f4d35e;
-            color: #222;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .submit-button:hover {
-            background: #e5c34e;
-        }
-
-        .note {
-            margin-top: 18px;
-            font-size: 13px;
-            color: #888;
-            line-height: 1.5;
+        .animate-card {
+            animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
 </head>
+<body class="h-full font-sans text-gray-200 antialiased bg-plaza-dark selection:bg-plaza-gold selection:text-black flex flex-col justify-between min-h-screen p-6 md:p-10">
 
-<body>
+<div class="max-w-xl w-full mx-auto animate-card">
 
-<div class="container">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl overflow-hidden border border-plaza-gold/30 shrink-0 shadow-sm bg-black flex items-center justify-center">
+                <img src="{% static 'plaza_logo.jpg' %}" alt="Plaza Logo" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-wide">Manage Wallet</h1>
+                <p class="text-xs font-yellowtail text-plaza-gold text-lg tracking-wide">Plaza Portal</p>
+            </div>
+        </div>
 
-    <header class="header">
-        <h1>Manage Wallet</h1>
-
-        <a href="{% url 'account' %}" class="back-button">
-            ← My Account
+        <a href="{% url 'account' %}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-plaza-panel border border-plaza-border text-xs font-medium text-gray-300 hover:text-plaza-gold hover:border-plaza-gold/30 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <span>My Account</span>
         </a>
-    </header>
+    </div>
 
-    <section class="wallet-card">
+    <!-- Wallet Card Container -->
+    <div class="bg-plaza-panel border border-plaza-border rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+        
+        <!-- Subtle Accent Glow -->
+        <div class="absolute top-0 right-0 w-48 h-48 bg-plaza-gold/5 rounded-full blur-3xl pointer-events-none"></div>
 
-        <h2>Add Money to Wallet</h2>
-
-        <p class="description">
-            Enter the amount you wish to add to your Plaza wallet.
+        <h2 class="text-lg font-bold text-white mb-2">Add Money to Wallet</h2>
+        <p class="text-xs text-gray-400 leading-relaxed mb-6">
+            Enter the amount you wish to add to your Plaza wallet. Funds will be instantly available for booking exclusive events.
         </p>
 
-        <form method="POST" action="{% url 'wallet' %}">
-
+        <form method="POST" action="{% url 'wallet' %}" class="space-y-5">
             {% csrf_token %}
 
-            <input
-                type="hidden"
-                name="transaction_type"
-                value="CREDIT"
-            >
+            <input type="hidden" name="transaction_type" value="CREDIT">
 
-            <div class="form-group">
-
-                <label for="amount">
+            <div class="space-y-2">
+                <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-gray-400">
                     Amount (₹)
                 </label>
-
-                <input
-                    type="number"
-                    step="1"
-                    name="amount"
-                    id="amount"
-                    placeholder="Enter amount"
-                    min="1"
-                    required
-                >
-
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-500 font-bold">₹</span>
+                    <input 
+                        type="number" 
+                        step="1" 
+                        name="amount" 
+                        id="amount" 
+                        placeholder="0.00" 
+                        min="1" 
+                        required
+                        class="w-full pl-8 pr-4 py-3 bg-plaza-dark border border-plaza-border rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-plaza-gold focus:ring-1 focus:ring-plaza-gold text-sm transition-all"
+                    >
+                </div>
             </div>
 
-            <button type="submit" class="submit-button">
-                Add Money
+            <button type="submit" class="w-full py-3.5 px-4 bg-plaza-gold hover:bg-plaza-gold-hover text-black font-bold text-sm rounded-xl shadow-lg shadow-plaza-gold/10 transition-all duration-200 transform active:scale-[0.99] flex items-center justify-center gap-2">
+                <span>Add Money</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
             </button>
-
         </form>
 
+    </div>
 
-    </section>
+</div>
 
+<!-- Footer Note -->
+<div class="text-center text-[11px] text-gray-500 mt-8">
+    &copy; Plaza Lifestyle. All transactions are securely encrypted.
 </div>
 
 </body>
 </html>
-```

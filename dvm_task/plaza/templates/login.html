@@ -1,20 +1,144 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-[#0d0e12]">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Plaza</title>
+
+    <!-- Google Font: Yellowtail -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Yellowtail&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        yellowtail: ['Yellowtail', 'cursive'],
+                    },
+                    colors: {
+                        plaza: {
+                            gold: '#f5c542',
+                            'gold-hover': '#e5b838',
+                            dark: '#0d0e12',
+                            panel: '#151821',
+                            card: '#1c202d',
+                            border: '#262b3a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.94) translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 25px rgba(245, 197, 66, 0.12);
+            }
+            50% {
+                box-shadow: 0 0 45px rgba(245, 197, 66, 0.28);
+            }
+        }
+
+        .animate-card {
+            animation: fadeInScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .logo-glow {
+            animation: pulseGlow 3.5s ease-in-out infinite;
+        }
+
+        /* Styling Django form inputs automatically */
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            background-color: #0d0e12;
+            border: 1px solid #262b3a;
+            border-radius: 0.5rem;
+            color: #f3f4f6;
+            outline: none;
+            transition: all 0.2s ease;
+            margin-top: 0.25rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #f5c542;
+            box-shadow: 0 0 0 2px rgba(245, 197, 66, 0.2);
+        }
+
+        label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #9ca3af;
+        }
+    </style>
 </head>
-<body>
-    <h2>Login</h2>
+<body class="h-full font-sans text-gray-200 antialiased bg-plaza-dark flex items-center justify-center p-4 selection:bg-plaza-gold selection:text-black relative overflow-hidden">
 
-    {% if form.errors %}
-        <p style="color: red;">Your username and password didn't match. Please try again.</p>
-    {% endif %}
+    <!-- Background Subtle Glow Grid -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,197,66,0.05)_0,transparent_70%)] pointer-events-none"></div>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Log in</button>
-    </form>
+    <!-- Login Card Container -->
+    <div class="animate-card w-full max-w-md bg-plaza-panel border border-plaza-border rounded-2xl p-8 shadow-2xl relative z-10">
+        
+        <!-- Header & Logo -->
+        <div class="flex flex-col items-center text-center mb-8">
+            <div class="logo-glow w-20 h-20 rounded-2xl overflow-hidden border-2 border-plaza-gold/40 bg-black flex items-center justify-center mb-4 transition-transform duration-500 hover:scale-105">
+                <img src="{% static 'plaza_logo.jpg' %}" alt="Plaza Logo" class="w-full h-full object-cover">
+            </div>
+            
+            <h1 class="font-yellowtail text-5xl text-plaza-gold tracking-wide mb-1">
+                Plaza
+            </h1>
+            <p class="text-xs text-gray-400">Enter your credentials to access your portal</p>
+        </div>
+
+        <!-- Form Error Alert -->
+        {% if form.errors %}
+        <div class="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center flex items-center justify-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Your username and password didn't match. Please try again.</span>
+        </div>
+        {% endif %}
+
+        <!-- Authentication Form -->
+        <form method="post" class="space-y-2">
+            {% csrf_token %}
+            
+            {{ form.as_p }}
+
+            <button type="submit" class="w-full py-3 px-4 mt-2 bg-plaza-gold hover:bg-plaza-gold-hover text-black font-bold text-sm rounded-lg shadow-lg shadow-plaza-gold/10 transition-all duration-200 transform active:scale-[0.99] flex items-center justify-center gap-2">
+                <span>Sign In</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </button>
+        </form>
+    </div>
+
 </body>
 </html>

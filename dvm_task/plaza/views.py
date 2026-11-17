@@ -11,6 +11,9 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 from .forms import EventCreationForm, ScheduleFormSet
 
+def welcome_view(request):
+    return render(request, 'welcome.html')
+
 @login_required
 def home_view(request):
     org =  request.user.groups.filter(name = "Organization").exists()
