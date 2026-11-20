@@ -31,7 +31,7 @@ It also features a dedicated **Organization Dashboard** where event creators can
 
 * **Backend**: Python 3.14.4 Django
 * **Database**: PostgreSQL
-* **Frontend**: Bootstrap
+* **Frontend**: Tailwind CSS
 
 ---
 
