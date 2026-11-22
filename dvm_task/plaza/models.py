@@ -40,6 +40,11 @@ class Event(models.Model):
             if self.end_time <= self.start_time:
                 raise ValidationError("Invalid start endtimes.")
             
+            if self.type == "TICKET" and self.duration:
+                actual_minutes = round((self.end_time - self.start_time).total_seconds()/60)
+                if actual_minutes != self.duration:
+                    raise ValidationError("Duration start end mismatch")
+            
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
@@ -82,7 +87,7 @@ def create_event_slots(event):
 
     for schedule in event.schedules.all():
         if schedule.end_time <= schedule.start_time:
-            raise ValidationError(f"Closing time must be after opening time on {schedule.date}.")
+            raise ValidationError(f"Invalid start end times.")
 
         start = datetime.combine(schedule.date, schedule.start_time)
         end = datetime.combine(schedule.date, schedule.end_time)
@@ -134,4 +139,4 @@ class SlotBooking(models.Model):
     consumed = models.CharField(max_length = 10, choices = [('YES','Yes'),('NO','No')], default = 'No')
 
     def __str__(self):
-            return f"{self.user} : {self.slot} : {self.status} "
+        return f"{self.user} : {self.slot} : {self.status} "

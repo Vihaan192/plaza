@@ -1,207 +1,133 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Bookings | Plaza</title>
+{% extends "base.html" %}
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% block title %}All Bookings | Plaza{% endblock %}
 
-        body {
-            margin: 0;
-            padding: 30px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-        }
+{% block content %}
+<div class="space-y-8">
 
-        .container {
-            max-width: 1100px;
-            margin: auto;
-        }
+    <!-- Top Back Link & Page Header -->
+    <div class="space-y-4">
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-plaza-gold transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            <span>Back to Home</span>
+        </a>
 
-        .header {
-            margin-bottom: 30px;
-        }
+        <header class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-6 border-b border-plaza-border">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">All Bookings</h1>
+                <p class="text-sm text-gray-400 mt-1">A complete breakdown of your ticket and slot bookings on Plaza.</p>
+            </div>
 
-        .header h1 {
-            margin-bottom: 8px;
-            color: #ffffff;
-        }
-
-        .header p {
-            color: #9e9e9e;
-            margin: 0;
-        }
-
-        .section-title {
-            color: #ffffff;
-            font-size: 20px;
-            margin-bottom: 15px;
-            margin-top: 40px;
-        }
-
-        .back-link {
-            display: inline-block;
-            color: #f5c542;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Table Styling */
-        .table-responsive {
-            background: #1e1e1e;
-            border: 1px solid #2d2d2d;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            margin-bottom: 30px;
-        }
-
-        .bookings-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        .bookings-table th {
-            background: #191c24;
-            color: #f5c542;
-            padding: 14px 18px;
-            font-weight: 600;
-            border-bottom: 1px solid #2d2d2d;
-            letter-spacing: 0.5px;
-        }
-
-        .bookings-table td {
-            padding: 14px 18px;
-            border-bottom: 1px solid #2d2d2d;
-            color: #cccccc;
-        }
-
-        .bookings-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .bookings-table tr:hover {
-            background: rgba(245, 197, 66, 0.03);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-confirmed {
-            background: #2a2515;
-            color: #f5c542;
-            border: 1px solid #4a3d14;
-        }
-
-        .highlight-time {
-            color: #f5c542;
-            font-weight: 600;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <a href="{% url 'home' %}" class="back-link">← Back to Home</a>
-
-    <header class="header">
-        <h1>All Bookings</h1>
-        <p>A complete breakdown of your ticket and slot bookings on Plaza.</p>
-    </header>
-
-    <h2 class="section-title">Ticket Bookings</h2>
-    <div class="table-responsive">
-        <table class="bookings-table">
-            <thead>
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Event Name</th>
-                    <th>Quantity</th>
-                    <th>Total Paid</th>
-                    <th>Consumed?</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for booking in ticket_bookings %}
-                    <tr>
-                        <td>#{{ booking.id }}</td>
-                        <td><strong>{{ booking.event.name }}</strong></td>
-                        <td>{{ booking.quantity }}</td>
-                        <td>₹{{ booking.total_amount|default:booking.event.price }}</td>
-                        <td>
-                            {% if booking.consumed|lower == "yes" or booking.consumed == True %}
-                                <span class="status-badge status-confirmed">Yes</span>
-                            {% else %}
-                                <span style="color: #9e9e9e;">No</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: #9e9e9e; padding: 30px;">
-                            No ticket bookings found.
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            <div class="flex items-center gap-3">
+                <div class="bg-plaza-panel border border-plaza-border rounded-xl px-4 py-2.5">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Tickets</div>
+                    <div class="text-lg font-bold text-plaza-gold">{{ ticket_bookings|length }}</div>
+                </div>
+                <div class="bg-plaza-panel border border-plaza-border rounded-xl px-4 py-2.5">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Slots</div>
+                    <div class="text-lg font-bold text-plaza-gold">{{ slot_bookings|length }}</div>
+                </div>
+            </div>
+        </header>
     </div>
 
-    <h2 class="section-title">Slot Bookings</h2>
-    <div class="table-responsive">
-        <table class="bookings-table">
-            <thead>
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Event Name</th>
-                    <th>Slot Date</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for booking in slot_bookings %}
-                    <tr>
-                        <td>#{{ booking.id }}</td>
-                        <td><strong>{{ booking.slot.event.name }}</strong></td>
-                        <td>{{ booking.slot.start_time|date:"d M Y" }}</td>
-                        <td><span class="highlight-time">{{ booking.slot.start_time|date:"g:i A" }}</span></td>
-                        <td><span class="highlight-time">{{ booking.slot.end_time|date:"g:i A" }}</span></td>
-                        <td>₹{{ booking.slot.event.price }}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #9e9e9e; padding: 30px;">
-                            No slot bookings found.
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <!-- Ticket Bookings Section -->
+    <section class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-white">Ticket Bookings</h2>
+        </div>
+
+        <div class="bg-plaza-card border border-plaza-border rounded-2xl overflow-hidden shadow-lg">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-plaza-panel border-b border-plaza-border text-[11px] font-bold uppercase tracking-wider text-plaza-gold">
+                            <th class="py-3.5 px-5">Booking ID</th>
+                            <th class="py-3.5 px-5">Event Name</th>
+                            <th class="py-3.5 px-5">Quantity</th>
+                            <th class="py-3.5 px-5">Total Paid</th>
+                            <th class="py-3.5 px-5">Consumed?</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-plaza-border text-gray-300">
+                        {% for booking in ticket_bookings %}
+                            <tr class="hover:bg-plaza-gold/5 transition-colors">
+                                <td class="py-4 px-5 font-mono text-xs text-gray-400">#{{ booking.id }}</td>
+                                <td class="py-4 px-5 font-semibold text-white">{{ booking.event.name }}</td>
+                                <td class="py-4 px-5">{{ booking.quantity }}</td>
+                                <td class="py-4 px-5 font-semibold text-white">₹{{ booking.total_amount|default:booking.event.price }}</td>
+                                <td class="py-4 px-5">
+                                    {% if booking.consumed|lower == "yes" or booking.consumed == True %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-plaza-gold/15 text-plaza-gold border border-plaza-gold/30">
+                                            Yes
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-plaza-panel text-gray-400 border border-plaza-border">
+                                            No
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="py-10 px-5 text-center text-gray-400">
+                                    No ticket bookings found.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slot Bookings Section -->
+    <section class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-white">Slot Bookings</h2>
+        </div>
+
+        <div class="bg-plaza-card border border-plaza-border rounded-2xl overflow-hidden shadow-lg">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-plaza-panel border-b border-plaza-border text-[11px] font-bold uppercase tracking-wider text-plaza-gold">
+                            <th class="py-3.5 px-5">Booking ID</th>
+                            <th class="py-3.5 px-5">Event Name</th>
+                            <th class="py-3.5 px-5">Slot Date</th>
+                            <th class="py-3.5 px-5">Start Time</th>
+                            <th class="py-3.5 px-5">End Time</th>
+                            <th class="py-3.5 px-5">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-plaza-border text-gray-300">
+                        {% for booking in slot_bookings %}
+                            <tr class="hover:bg-plaza-gold/5 transition-colors">
+                                <td class="py-4 px-5 font-mono text-xs text-gray-400">#{{ booking.id }}</td>
+                                <td class="py-4 px-5 font-semibold text-white">{{ booking.slot.event.name }}</td>
+                                <td class="py-4 px-5 text-gray-300">{{ booking.slot.start_time|date:"d M Y" }}</td>
+                                <td class="py-4 px-5">
+                                    <span class="font-semibold text-plaza-gold">{{ booking.slot.start_time|date:"g:i A" }}</span>
+                                </td>
+                                <td class="py-4 px-5">
+                                    <span class="font-semibold text-plaza-gold">{{ booking.slot.end_time|date:"g:i A" }}</span>
+                                </td>
+                                <td class="py-4 px-5 font-semibold text-white">₹{{ booking.slot.event.price }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="py-10 px-5 text-center text-gray-400">
+                                    No slot bookings found.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
 </div>
-
-</body>
-</html>
+{% endblock %}

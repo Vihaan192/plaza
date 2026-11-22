@@ -1,89 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slot Booking Confirmation | Plaza</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% extends "base.html" %}
 
-        body {
-            margin: 0;
-            padding: 40px 20px;
-            font-family: Arial, sans-serif;
-            background-color: #171b1b;
-            color: #f1f1f1;
-        }
+{% block title %}Slot Booking Confirmation | Plaza{% endblock %}
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 30px;
-            background-color: #222828;
-            border: 1px solid #363d3d;
-            border-radius: 12px;
-        }
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
 
-        h1 {
-            color: #f5c542;
-            margin-top: 0;
-        }
+    <!-- Confirmation Card -->
+    <section class="bg-plaza-card border border-plaza-border rounded-2xl p-6 md:p-8 shadow-lg space-y-6">
 
-        .success-box {
-            background-color: #224d22;
-            color: #ddffdd;
-            border: 1px solid #336b33;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-weight: bold;
-        }
+        <!-- Header & Status Badge -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 border-b border-plaza-border">
+            <div>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    Confirmed
+                </span>
+                <h1 class="text-2xl md:text-3xl font-bold text-plaza-gold tracking-tight mt-2">
+                    Slot Booked Successfully!
+                </h1>
+            </div>
+        </div>
 
-        p {
-            line-height: 1.6;
-            color: #ccc;
-        }
+        <!-- Success Banner -->
+        <div class="px-4 py-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-sm">
+            Your time slot for <strong class="font-semibold text-white">{{ event.name }}</strong> has been confirmed.
+        </div>
 
-        strong {
-            color: white;
-        }
+        <!-- Booking Summary Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4">
+                <div class="text-xs font-medium text-gray-400">Location</div>
+                <div class="text-sm font-semibold text-white mt-1">{{ event.location }}</div>
+            </div>
 
-        .back-button {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 12px 22px;
-            background-color: #f5c542;
-            color: #171b1b;
-            border-radius: 7px;
-            font-weight: bold;
-            text-decoration: none;
-        }
+            <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4">
+                <div class="text-xs font-medium text-gray-400">Status</div>
+                <div class="text-sm font-semibold text-emerald-400 mt-1">{{ booking.status }}</div>
+            </div>
 
-        .back-button:hover {
-            background-color: #e4b52f;
-        }
-    </style>
-</head>
-<body>
+            <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4 sm:col-span-2">
+                <div class="text-xs font-medium text-gray-400">Slot Time</div>
+                <div class="text-sm font-semibold text-white mt-1">
+                    {{ slot.start_time|date:"d M Y, g:i A" }} – {{ slot.end_time|date:"g:i A" }}
+                </div>
+            </div>
 
-<div class="container">
-    <h1>Slot Booked Successfully! 🎉</h1>
-    
-    <div class="success-box">
-        Your time slot for <strong>{{ event.name }}</strong> has been confirmed.
-    </div>
+            <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4 sm:col-span-2 flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Paid</span>
+                <span class="text-xl font-bold text-plaza-gold">₹{{ total_amount }}</span>
+            </div>
+        </div>
 
-    <p><strong>Location:</strong> {{ event.location }}</p>
-    <p><strong>Slot Time:</strong> {{ slot.start_time|date:"d M Y, g:i A" }} to {{ slot.end_time|date:"g:i A" }}</p>
-    <p><strong>Total Paid:</strong> ₹{{ total_amount }}</p>
-    <p><strong>Status:</strong> {{ booking.status }}</p>
+        <!-- Actions -->
+        <div class="pt-2 flex flex-wrap items-center gap-3">
+            <a href="{% url 'events' %}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-plaza-gold hover:bg-plaza-gold-hover text-plaza-dark transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                <span>Back to All Events</span>
+            </a>
 
-    <a href="{% url 'events' %}" class="back-button">
-        ← Back to All Events
-    </a>
+            <a href="{% url 'booking' %}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold bg-plaza-panel hover:bg-plaza-border/60 text-gray-200 border border-plaza-border transition-colors">
+                View My Bookings
+            </a>
+        </div>
+
+    </section>
+
 </div>
-
-</body>
-</html>
+{% endblock %}

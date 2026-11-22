@@ -1,119 +1,494 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Create Event | Plaza</title>
-    <style>
-        body { background-color: #171b1b; color: #f1f1f1; font-family: Arial, sans-serif; padding: 40px 20px; margin: 0; }
-        .container { max-width: 700px; margin: auto; padding: 30px; background-color: #222828; border: 1px solid #363d3d; border-radius: 12px; }
-        h1, h2 { color: #f5c542; }
-        form { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        label { font-weight: bold; color: #ccc; font-size: 13px; display: block; margin-bottom: 5px; }
-        input, select, textarea { width: 100%; padding: 11px; background-color: #303838; color: white; border: 1px solid #505858; border-radius: 6px; box-sizing: border-box; }
-        button, .btn { padding: 12px; background-color: #f5c542; color: #171b1b; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; text-decoration: none; text-align: center; display: inline-block; }
-        button:hover, .btn:hover { background-color: #e4b52f; }
-        
-        .schedule-row { background: #1c2222; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #303838; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
-        .alert-error { background: #4d2222; color: #ffdddd; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #6b3333; }
-        .back-link { display: inline-block; margin-top: 25px; color: #f5c542; text-decoration: none; font-weight: bold; }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <h1>Create New Event</h1>
-    <p style="color: #aaa;">Publish a fixed capacity ticket event or a time-sliced slot event.</p>
+{% extends "base.html" %}
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert-error">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+{% block title %}Create Event | Plaza{% endblock %}
 
-    <form method="POST">
-        {% csrf_token %}
-        
-        {% if form.non_field_errors %}
-            <div style="background-color: #4d2222; border: 1px solid #6b3333; color: #ffdddd; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px;">
-                {% for error in form.non_field_errors %}
-                    <div style="font-weight: bold;">⚠️ {{ error }}</div>
-                {% endfor %}
+{% block extra_css %}
+<style>
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin-top: 6px;
+        color: #fca5a5;
+        font-size: 12px;
+    }
+
+    .field-error {
+        border-color: #ef4444 !important;
+    }
+
+    .schedule-row {
+        animation: slideIn 0.25s ease-out;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    input[type="checkbox"] {
+        accent-color: #f5c542;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .form-control {
+        width: 100%;
+        background: #0d0e12;
+        border: 1px solid #363044;
+        color: #f1f1f1;
+        padding: 11px 13px;
+        border-radius: 9px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #a78bfa;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.13);
+    }
+
+    .form-control::placeholder {
+        color: #666477;
+    }
+
+    .form-control option {
+        background: #151821;
+        color: white;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    input[type="date"].form-control,
+    input[type="time"].form-control {
+        color-scheme: dark;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto pb-12">
+
+    <!-- Page Header -->
+    <div class="mb-8">
+
+        <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
+            <a href="{% url 'org_dashboard' %}"
+               class="hover:text-plaza-gold transition-colors">
+                Organization Hub
+            </a>
+
+            <span>/</span>
+
+            <span class="text-violet-400">Create Event</span>
+        </div>
+
+        <div class="flex items-start gap-4">
+
+            <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6 text-violet-400" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="1.8"
+                          d="M12 4v16m8-8H4"/>
+                </svg>
             </div>
-        {% endif %}
-        {{ form.non_field_errors }}
-        {% for field in form %}
+
             <div>
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {{ field.errors }}
+                <h1 class="text-3xl font-bold text-white tracking-tight">
+                    Create New Event
+                </h1>
+
+                <p class="text-sm text-gray-400 mt-1">
+                    Set up your event, configure its details and publish it on Plaza.
+                </p>
             </div>
-        {% endfor %}
 
-        <hr style="border-color: #363d3d; margin: 30px 0;">
+        </div>
 
-        <h2>Operating Schedules (For Slot Events Only)</h2>
-        <p style="color: #aaa; font-size: 13px;">Add daily operating hours. Slots will automatically be generated between these times based on your duration setting above.</p>
+    </div>
 
-        <!-- Management form is mandatory for formsets to function -->
-        {{ formset.management_form }}
 
-        <div id="schedule-form-list">
-            {% for schedule_form in formset %}
-                <div class="schedule-row">
-                    <div>
-                        {{ schedule_form.date.label_tag }}
-                        {{ schedule_form.date }}
-                    </div>
-                    <div>
-                        {{ schedule_form.start_time.label_tag }}
-                        {{ schedule_form.start_time }}
-                    </div>
-                    <div>
-                        {{ schedule_form.end_time.label_tag }}
-                        {{ schedule_form.end_time }}
-                    </div>
-                    {% if formset.can_delete %}
-                        <div style="display: flex; align-items: center; gap: 5px; padding-bottom: 5px;">
-                            {{ schedule_form.DELETE }} <label style="margin:0; font-size:12px;">Delete</label>
-                        </div>
-                    {% endif %}
+    <!-- Messages -->
+    {% if messages %}
+        <div class="space-y-3 mb-6">
+            {% for message in messages %}
+                <div class="flex items-center gap-3 p-4 rounded-xl border
+                    {% if message.tags == 'error' %}
+                        bg-red-500/10 border-red-500/20 text-red-300
+                    {% else %}
+                        bg-violet-500/10 border-violet-500/20 text-violet-200
+                    {% endif %}">
+
+                    <svg class="w-5 h-5 shrink-0" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+
+                    <span class="text-sm">{{ message }}</span>
                 </div>
             {% endfor %}
         </div>
+    {% endif %}
 
 
-        <button type="button" id="add-schedule-btn" style="background-color: #303838; color: #f5c542; border: 1px dashed #f5c542; margin-top: 10px;">
-            + Add Another Operating Schedule
-        </button>
-            <button type="submit" style="margin-top: 15px;">Publish Event & Generate Slots</button>
-        </form>
+    <form method="POST">
+        {% csrf_token %}
 
-    <a href="{% url 'org_dashboard' %}" class="back-link">← Back to Dashboard</a>
+        <!-- General Event Details -->
+        <div class="bg-plaza-panel border border-plaza-border rounded-2xl overflow-hidden shadow-xl shadow-black/20">
+
+            <div class="px-6 py-5 border-b border-plaza-border flex items-center gap-3">
+
+                <div class="w-9 h-9 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-violet-400" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="1.8"
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h2 class="text-base font-semibold text-white">
+                        Event Details
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                        Basic information about your event
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="p-6">
+
+                {% if form.non_field_errors %}
+                    <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
+                        {% for error in form.non_field_errors %}
+                            <p>⚠ {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+
+                    {% for field in form %}
+
+                        <div class="{% if field.name == 'desc' or field.name == 'description' or field.name == 'location' %}md:col-span-2{% endif %}">
+
+                            <label for="{{ field.id_for_label }}"
+                                   class="block text-sm font-medium text-gray-300 mb-2">
+                                {{ field.label }}
+
+                                {% if field.field.required %}
+                                    <span class="text-plaza-gold">*</span>
+                                {% endif %}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <p class="text-xs text-gray-500 mt-2">
+                                    {{ field.help_text }}
+                                </p>
+                            {% endif %}
+
+                            {{ field.errors }}
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Operating Schedules -->
+        <div class="mt-6 bg-plaza-panel border border-plaza-border rounded-2xl overflow-hidden shadow-xl shadow-black/20">
+
+            <div class="px-6 py-5 border-b border-plaza-border">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-9 h-9 rounded-lg bg-plaza-gold/10 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-plaza-gold" fill="none"
+                             stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  stroke-width="1.8"
+                                  d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h2 class="text-base font-semibold text-white">
+                            Operating Schedules
+                        </h2>
+
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            Configure availability for slot-based events
+                        </p>
+                    </div>
+
+                    <span class="ml-auto text-[10px] uppercase tracking-wider font-bold text-violet-300 bg-violet-500/10 border border-violet-500/20 px-2.5 py-1 rounded-full">
+                        Slot Events
+                    </span>
+
+                </div>
+
+                <p class="text-xs text-gray-400 mt-4 leading-relaxed">
+                    Add the dates and operating hours during which your event
+                    will be available. Plaza will automatically generate
+                    individual slots based on the event duration.
+                </p>
+
+            </div>
+
+
+            <div class="p-6">
+
+                {{ formset.management_form }}
+
+                {% if formset.non_form_errors %}
+                    <div class="mb-4 text-sm text-red-300">
+                        {{ formset.non_form_errors }}
+                    </div>
+                {% endif %}
+
+                <div id="schedule-form-list" class="space-y-3">
+
+                    {% for schedule_form in formset %}
+
+                        <div class="schedule-row relative bg-plaza-card border border-plaza-border rounded-xl p-4">
+
+                            <div class="flex items-center justify-between mb-4">
+
+                                <span class="text-xs font-semibold uppercase tracking-wider text-violet-300">
+                                    Schedule {{ forloop.counter }}
+                                </span>
+
+                                {% if formset.can_delete %}
+                                    <label class="flex items-center gap-2 text-xs text-gray-400 hover:text-red-400 transition-colors cursor-pointer">
+                                        {{ schedule_form.DELETE }}
+                                        Remove
+                                    </label>
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-2">
+                                        Date
+                                    </label>
+
+                                    {{ schedule_form.date }}
+                                    {{ schedule_form.date.errors }}
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-2">
+                                        Start Time
+                                    </label>
+
+                                    {{ schedule_form.start_time }}
+                                    {{ schedule_form.start_time.errors }}
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-2">
+                                        End Time
+                                    </label>
+
+                                    {{ schedule_form.end_time }}
+                                    {{ schedule_form.end_time.errors }}
+                                </div>
+
+                            </div>
+
+                            {% for hidden in schedule_form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+
+                            {% if schedule_form.non_field_errors %}
+                                <div class="text-xs text-red-300 mt-3">
+                                    {{ schedule_form.non_field_errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Add Schedule -->
+                <button type="button"
+                        id="add-schedule-btn"
+                        class="mt-5 w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-violet-500/40 bg-violet-500/5 text-violet-300 hover:bg-violet-500/10 hover:border-violet-400/70 transition-all text-sm font-medium">
+
+                    <svg class="w-4 h-4" fill="none"
+                         stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2" d="M12 5v14m-7-7h14"/>
+                    </svg>
+
+                    Add Another Schedule
+
+                </button>
+
+            </div>
+        </div>
+
+
+        <!-- Form Actions -->
+        <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 mt-8">
+
+            <a href="{% url 'org_dashboard' %}"
+               class="w-full sm:w-auto text-center px-5 py-3 rounded-xl border border-plaza-border text-gray-400 hover:text-white hover:bg-plaza-card transition-all text-sm font-medium">
+                ← Back to Dashboard
+            </a>
+
+
+            <button type="submit"
+                    class="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3 rounded-xl bg-plaza-gold hover:bg-plaza-gold-hover text-plaza-dark font-bold text-sm shadow-lg shadow-plaza-gold/10 hover:shadow-plaza-gold/20 transition-all">
+
+                <svg class="w-4 h-4" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+
+                Publish Event
+
+            </button>
+
+        </div>
+
+    </form>
+
 </div>
-<script>
-    document.getElementById('add-schedule-btn').addEventListener('click', function() {
-        const formList = document.getElementById('schedule-form-list');
-        const totalFormsInput = document.querySelector('#id_schedules-TOTAL_FORMS'); 
-        let formCount = parseInt(totalFormsInput.value);
-        const firstRow = formList.querySelector('.schedule-row');
-        const newRow = firstRow.cloneNode(true);
-        const htmlRegex = /schedules-(\d+)-/g;
-        newRow.innerHTML = newRow.innerHTML.replace(htmlRegex, `schedules-${formCount}-`);
 
-        const inputs = newRow.querySelectorAll('input, select');
-        inputs.forEach(input => {
-            if (input.type !== 'checkbox' && input.type !== 'hidden') {
-                input.value = '';
-            } else if (input.type === 'checkbox') {
-                input.checked = false;
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Style Django-generated form controls
+    function styleControls(container) {
+
+        container.querySelectorAll(
+            'input:not([type="checkbox"]):not([type="hidden"]), select, textarea'
+        ).forEach(input => {
+            input.classList.add('form-control');
+
+            if (input.classList.contains('errorlist')) {
+                input.classList.add('field-error');
             }
         });
 
+        container.querySelectorAll('.errorlist').forEach(error => {
+            const field = error.previousElementSibling;
+
+            if (field && field.classList.contains('form-control')) {
+                field.classList.add('field-error');
+            }
+        });
+    }
+
+    styleControls(document);
+
+
+    // Dynamically add operating schedules
+    const addButton = document.getElementById('add-schedule-btn');
+    const formList = document.getElementById('schedule-form-list');
+
+    const totalFormsInput = document.querySelector(
+        '#id_schedules-TOTAL_FORMS'
+    );
+
+    addButton.addEventListener('click', function() {
+
+        const formCount = parseInt(totalFormsInput.value);
+
+        const firstRow = formList.querySelector('.schedule-row');
+
+        if (!firstRow) return;
+
+        const newRow = firstRow.cloneNode(true);
+
+        // Replace formset indexes in names, IDs and labels
+        const regex = /schedules-(\d+)-/g;
+
+        newRow.querySelectorAll('[name], [id], [for]').forEach(element => {
+
+            ['name', 'id', 'for'].forEach(attribute => {
+
+                const value = element.getAttribute(attribute);
+
+                if (value) {
+                    element.setAttribute(
+                        attribute,
+                        value.replace(regex, `schedules-${formCount}-`)
+                    );
+                }
+
+            });
+
+        });
+
+
+        // Clear all copied values
+        newRow.querySelectorAll('input, select, textarea').forEach(input => {
+
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            } else if (input.type !== 'hidden') {
+                input.value = '';
+            }
+
+        });
+
+
+        // Remove copied errors
+        newRow.querySelectorAll('.errorlist').forEach(error => {
+            error.remove();
+        });
+
+
+        // Update schedule number
+        const heading = newRow.querySelector('.uppercase');
+
+        if (heading) {
+            heading.textContent = `Schedule ${formCount + 1}`;
+        }
+
+
+        // Append and update management form
         formList.appendChild(newRow);
 
-        // Update management form total count
         totalFormsInput.value = formCount + 1;
+
+        styleControls(newRow);
+
     });
+
+});
 </script>
-</body>
-</html>
+
+{% endblock %}

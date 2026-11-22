@@ -1,222 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ event.name }} | Plaza</title>
+{% extends "base.html" %}
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% block title %}{{ event.name }} | Plaza{% endblock %}
 
-        body {
-            margin: 0;
-            padding: 40px 20px;
-            font-family: Arial, sans-serif;
-            background-color: #171b1b;
-            color: #f1f1f1;
-        }
+{% block extra_css %}
+<style>
+    /* Minimalistic custom select arrow */
+    .plaza-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f5c542' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.9rem center;
+        background-size: 1rem;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 30px;
-            background-color: #222828;
-            border: 1px solid #363d3d;
-            border-radius: 12px;
-        }
+    /* Hide native radio input while keeping accessibility */
+    .slot-radio {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
 
-        /* Alert & Message Styling */
-        .alert-box {
-            padding: 14px 18px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .alert-error, .alert-danger {
-            background-color: #4d2222;
-            color: #ffdddd;
-            border: 1px solid #6b3333;
-        }
-        .alert-success {
-            background-color: #224d22;
-            color: #ddffdd;
-            border: 1px solid #336b33;
-        }
+    .slot-radio:checked + .slot-card-available {
+        background-color: #f5c542;
+        color: #0d0e12;
+        border-color: #f5c542;
+        font-weight: 700;
+        box-shadow: 0 0 20px rgba(245, 197, 66, 0.25);
+    }
 
-        h1 {
-            color: #f5c542;
-            margin-top: 0;
-        }
+    .slot-radio:checked + .slot-card-available .slot-sub {
+        color: #151821;
+    }
+</style>
+{% endblock %}
 
-        h2 {
-            margin-top: 30px;
-            color: #f5c542;
-        }
+{% block content %}
+<div class="space-y-6">
 
-        .event-info p {
-            line-height: 1.7;
-            color: #ccc;
-        }
+    <!-- Back Navigation -->
+    <div>
+        <a href="{% url 'events' %}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-plaza-gold transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            <span>Back to Events</span>
+        </a>
+    </div>
 
-        .event-info strong {
-            color: white;
-        }
-
-        .booking-section {
-            margin-top: 35px;
-            padding-top: 20px;
-            border-top: 1px solid #414747;
-        }
-
-        select,
-        input[type="number"] {
-            padding: 11px;
-            background-color: #303838;
-            color: white;
-            border: 1px solid #505858;
-            border-radius: 6px;
-            font-size: 15px;
-        }
-
-        select {
-            margin-right: 10px;
-            cursor: pointer;
-        }
-
-        .book-button {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 12px 22px;
-            background-color: #f5c542;
-            color: #171b1b;
-            border: none;
-            border-radius: 7px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .book-button:hover {
-            background-color: #e4b52f;
-        }
-
-        .back-button {
-            display: inline-block;
-            margin-top: 25px;
-            color: #f5c542;
-            text-decoration: none;
-        }
-
-        .back-button:hover {
-            text-decoration: underline;
-        }
-
-        .empty-message {
-            color: #aaa;
-            margin-top: 15px;
-        }
-
-        .slots-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        /* Slot Buttons & Interactive Radio Wrappers */
-        .slot-radio {
-            display: none;
-        }
-
-        .slot {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 8px;
-            border: 1px solid;
-            font-size: 14px;
-            user-select: none;
-        }
-
-        .available {
-            background: #191d1d;
-            color: #f4d35e;
-            border-color: #f4d35e;
-            cursor: pointer;
-        }
-
-        .available:hover {
-            background: #f4d35e;
-            color: #101313;
-        }
-
-        .slot-radio:checked + .slot.available {
-            background: #f5c542;
-            color: #121212;
-            font-weight: bold;
-            box-shadow: 0 0 8px rgba(245, 197, 66, 0.4);
-        }
-
-        .unavailable {
-            background: #292929;
-            color: #777;
-            border-color: #444;
-            text-decoration: line-through;
-            cursor: not-allowed;
-        }
-
-        /* Confirmation Panel Styles */
-        .confirmation-panel {
-            margin-top: 25px;
-            padding: 20px;
-            background-color: #191d1d;
-            border: 1px solid #f5c542;
-            border-radius: 10px;
-        }
-
-        .confirmation-panel p {
-            margin: 0 0 15px 0;
-            color: #ffffff;
-            font-size: 15px;
-        }
-
-        .confirm-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn-cancel {
-            padding: 10px 18px;
-            background-color: #303838;
-            color: #f1f1f1;
-            border: 1px solid #505858;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-cancel:hover {
-            background-color: #414747;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <!-- Django Messages & Error Handling Display -->
+    <!-- Django Messages & Errors -->
     {% if messages %}
-        <div>
+        <div class="space-y-3">
             {% for message in messages %}
-                <div class="alert-box alert-{{ message.tags }}">
+                <div class="px-4 py-3.5 rounded-xl text-sm font-medium border {% if message.tags == 'error' or message.tags == 'danger' %}bg-red-500/10 text-red-300 border-red-500/30{% elif message.tags == 'success' %}bg-emerald-500/10 text-emerald-300 border-emerald-500/30{% else %}bg-plaza-gold/10 text-plaza-gold border-plaza-gold/30{% endif %}">
                     {{ message }}
                 </div>
             {% endfor %}
@@ -224,96 +60,162 @@
     {% endif %}
 
     {% if error_message %}
-        <div class="alert-box alert-error">
+        <div class="px-4 py-3.5 rounded-xl text-sm font-medium bg-red-500/10 text-red-300 border border-red-500/30">
             {{ error_message }}
         </div>
     {% endif %}
 
-    <div class="event-info">
-        <h1>{{ event.name }}</h1>
+    <!-- Event Overview Card -->
+    <section class="bg-plaza-card border border-plaza-border rounded-2xl p-6 md:p-8 shadow-lg">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-plaza-border">
+            <div class="space-y-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider bg-plaza-gold/10 text-plaza-gold border border-plaza-gold/25">
+                    {{ event.get_type_display|default:event.type }}
+                </span>
+                <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                    {{ event.name }}
+                </h1>
+            </div>
 
-        <p><strong>Description:</strong> {{ event.desc }}</p>
-        <p><strong>Location:</strong> {{ event.location }}</p>
-        <p><strong>Starts:</strong> {{ event.start_time|date:"d M Y, g:i A" }}</p>
-        <p><strong>Ends:</strong> {{ event.end_time|date:"d M Y, g:i A" }}</p>
-        <p><strong>Price:</strong> ₹{{ event.price }}</p>
+            <div class="bg-plaza-panel border border-plaza-border rounded-xl px-5 py-3 shrink-0 self-start">
+                <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Entry Price</div>
+                <div class="text-2xl font-bold text-plaza-gold mt-0.5">₹{{ event.price }}</div>
+            </div>
+        </div>
 
-        {% if event.type == "TICKET" %}
-            <p><strong>Tickets Available:</strong> {{ event.capacity }}</p>
-        {% endif %}
-    </div>
+        <p class="mt-5 text-gray-300 text-sm md:text-base leading-relaxed">
+            {{ event.desc }}
+        </p>
 
-    <div class="booking-section">
+        <!-- Event Metadata Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+            <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4">
+                <div class="text-xs font-medium text-gray-400">Location</div>
+                <div class="text-sm font-semibold text-white mt-1">{{ event.location }}</div>
+            </div>
 
-        {% if event.type == "SLOT" %}
+            <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4">
+                <div class="text-xs font-medium text-gray-400">Starts</div>
+                <div class="text-sm font-semibold text-white mt-1">{{ event.start_time|date:"d M Y, g:i A" }}</div>
+            </div>
 
-            <h2>Choose a Date</h2>
+            <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4">
+                <div class="text-xs font-medium text-gray-400">Ends</div>
+                <div class="text-sm font-semibold text-white mt-1">{{ event.end_time|date:"d M Y, g:i A" }}</div>
+            </div>
 
-            {% if slot_dates %}
-                <!-- Date selection: GET request -->
-                <form method="GET">
-                    <select name="date" required>
-                        {% for day in slot_dates %}
-                            <option
-                                value="{{ day|date:'Y-m-d' }}"
-                                {% if day == selected_date %}selected{% endif %}
-                            >
-                                {{ day|date:"l, d M Y" }}
-                            </option>
-                        {% endfor %}
-                    </select>
-
-                    <button type="submit" class="book-button">
-                        Show Slots
-                    </button>
-                </form>
-
-                <h2>Slots for {{ selected_date|date:"d M Y" }}</h2>
+            {% if event.type == "TICKET" %}
+                <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4">
+                    <div class="text-xs font-medium text-gray-400">Tickets Available</div>
+                    <div class="text-sm font-semibold text-plaza-gold mt-1">{{ event.capacity }}</div>
+                </div>
             {% endif %}
+        </div>
+    </section>
 
-            <form method="POST" action="{% url 'book_slot' event.id %}" id="slotBookingForm">
+    <!-- Booking Section -->
+    <section class="bg-plaza-card border border-plaza-border rounded-2xl p-6 md:p-8 shadow-lg">
+        {% if event.type == "SLOT" %}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-plaza-border">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Select Date &amp; Time Slot</h2>
+                    {% if selected_date %}
+                        <p class="text-sm text-gray-400 mt-1">
+                            Showing slots for <span class="text-plaza-gold font-medium">{{ selected_date|date:"l, d M Y" }}</span>
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Minimalistic Auto-Submitting Date Dropdown -->
+                {% if slot_dates %}
+                    <form method="GET" id="dateFilterForm" class="w-full sm:w-auto">
+                        <label for="dateSelect" class="sr-only">Choose a Date</label>
+                        <select
+                            id="dateSelect"
+                            name="date"
+                            onchange="this.form.submit()"
+                            class="plaza-select w-full sm:w-60 bg-plaza-panel text-white text-sm font-medium border border-plaza-border hover:border-plaza-gold/60 focus:border-plaza-gold focus:outline-none rounded-xl pl-4 pr-10 py-2.5 transition-colors cursor-pointer"
+                        >
+                            {% for day in slot_dates %}
+                                <option
+                                    value="{{ day|date:'Y-m-d' }}"
+                                    {% if day == selected_date %}selected{% endif %}
+                                >
+                                    {{ day|date:"D, d M Y" }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                {% endif %}
+            </div>
+
+            <!-- Slot Selection Form -->
+            <form method="POST" action="{% url 'book_slot' event.id %}" id="slotBookingForm" class="mt-6">
                 {% csrf_token %}
 
-                <div class="slots-container">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {% for slot in slots %}
                         {% if slot.is_available %}
-                            <label>
-                                <input 
-                                    type="radio" 
-                                    name="slot_id" 
-                                    value="{{ slot.id }}" 
-                                    class="slot-radio" 
-                                    data-time="{{ slot.start_time|date:'g:i A' }} - {{ slot.end_time|date:'g:i A' }}"
-                                    required 
+                            <label class="relative block cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="slot_id"
+                                    value="{{ slot.id }}"
+                                    class="slot-radio"
+                                    data-time="{{ slot.start_time|date:'g:i A' }} – {{ slot.end_time|date:'g:i A' }}"
+                                    required
                                     onchange="handleSlotSelection(this)"
                                 >
-                                <span class="slot available">
-                                    {{ slot.start_time|date:"g:i A" }} - {{ slot.end_time|date:"g:i A" }}
-                                </span>
+                                <div class="slot-card-available h-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-plaza-panel border border-plaza-border hover:border-plaza-gold text-white transition-all">
+                                    <div>
+                                        <div class="text-sm font-semibold">
+                                            {{ slot.start_time|date:"g:i A" }} – {{ slot.end_time|date:"g:i A" }}
+                                        </div>
+                                        <div class="slot-sub text-xs text-emerald-400 mt-0.5">Available</div>
+                                    </div>
+                                    <span class="text-xs font-semibold uppercase tracking-wide text-plaza-gold">Select</span>
+                                </div>
                             </label>
                         {% else %}
-                            <span class="slot unavailable">
-                                {{ slot.start_time|date:"g:i A" }} - {{ slot.end_time|date:"g:i A" }} (Booked)
-                            </span>
+                            <div
+                                aria-disabled="true"
+                                class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-plaza-dark/70 border border-plaza-border/60 text-gray-500 cursor-not-allowed select-none"
+                            >
+                                <div>
+                                    <div class="text-sm font-medium line-through">
+                                        {{ slot.start_time|date:"g:i A" }} – {{ slot.end_time|date:"g:i A" }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-0.5">Booked</div>
+                                </div>
+                            </div>
                         {% endif %}
                     {% empty %}
-                        <p class="empty-message">
-                            No upcoming slots available for this date.
-                        </p>
+                        <div class="col-span-full py-8 text-center bg-plaza-panel/60 border border-dashed border-plaza-border rounded-xl">
+                            <p class="text-sm text-gray-400">No upcoming slots available for this date.</p>
+                        </div>
                     {% endfor %}
                 </div>
 
-                <!-- Hidden Confirmation Step -->
-                <div id="confirmPanel" class="confirmation-panel hidden">
-                    <p>
-                        ⚠️ Selected Slot: <strong id="selectedSlotText" style="color: #f5c542;"></strong><br>
-                        Are you sure you want to confirm this booking?
-                    </p>
-                    <div class="confirm-actions">
-                        <button type="button" class="btn-cancel" onclick="resetSlotSelection()">
+                <!-- Confirmation Panel -->
+                <div id="confirmPanel" class="hidden mt-6 p-5 rounded-xl bg-plaza-panel border border-plaza-gold/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="text-xs font-semibold uppercase tracking-wider text-plaza-gold">Confirm Slot</div>
+                        <p class="text-sm text-gray-200">
+                            Book <span id="selectedSlotText" class="font-bold text-white"></span> on {{ selected_date|date:"d M Y" }}?
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <button
+                            type="button"
+                            onclick="resetSlotSelection()"
+                            class="px-4 py-2.5 rounded-lg text-sm font-semibold bg-plaza-card text-gray-300 hover:text-white border border-plaza-border transition-colors cursor-pointer"
+                        >
                             Cancel
                         </button>
-                        <button type="submit" class="book-button" style="margin-top: 0;">
+                        <button
+                            type="submit"
+                            class="px-5 py-2.5 rounded-lg text-sm font-bold bg-plaza-gold hover:bg-plaza-gold-hover text-plaza-dark transition-colors cursor-pointer"
+                        >
                             Confirm Booking
                         </button>
                     </div>
@@ -321,64 +223,62 @@
             </form>
 
         {% elif event.type == "TICKET" %}
-
-            <h2>Book Tickets</h2>
+            <div class="pb-5 border-b border-plaza-border">
+                <h2 class="text-xl font-bold text-white">Book Tickets</h2>
+                <p class="text-sm text-gray-400 mt-1">Select how many passes you want to reserve.</p>
+            </div>
 
             {% if event.capacity and event.capacity > 0 %}
-                <form method="POST" action="{% url 'book_ticket' event.id %}">
+                <form method="POST" action="{% url 'book_ticket' event.id %}" class="mt-6 max-w-sm space-y-5">
                     {% csrf_token %}
 
-                    <label for="quantity">
-                        Number of tickets:
-                    </label>
+                    <div>
+                        <label for="quantity" class="block text-sm font-medium text-gray-300 mb-2">
+                            Number of tickets
+                        </label>
+                        <input
+                            type="number"
+                            name="quantity"
+                            id="quantity"
+                            min="1"
+                            max="{{ event.capacity }}"
+                            value="1"
+                            required
+                            class="w-full bg-plaza-panel text-white text-sm font-medium border border-plaza-border focus:border-plaza-gold focus:outline-none rounded-xl px-4 py-2.5 transition-colors"
+                        >
+                        <p class="text-xs text-gray-400 mt-1.5">Up to {{ event.capacity }} available</p>
+                    </div>
 
-                    <br><br>
-
-                    <input
-                        type="number"
-                        name="quantity"
-                        id="quantity"
-                        min="1"
-                        max="{{ event.capacity }}"
-                        value="1"
-                        required
+                    <button
+                        type="submit"
+                        class="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold bg-plaza-gold hover:bg-plaza-gold-hover text-plaza-dark transition-colors cursor-pointer"
                     >
-
-                    <br>
-
-                    <button type="submit" class="book-button">
                         Book Tickets
                     </button>
                 </form>
             {% else %}
-                <div style="background: #4d2222; padding: 15px; border-radius: 6px; color: #fff; margin-top: 15px;">
-                    <strong>Sold Out!</strong> There are no tickets remaining for this event.
+                <div class="mt-6 px-4 py-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-sm">
+                    <span class="font-bold text-white">Sold Out!</span> There are no tickets remaining for this event.
                 </div>
             {% endif %}
-
         {% endif %}
-
-    </div>
-
-    <a href="{% url 'events' %}" class="back-button">
-        ← Back to Events
-    </a>
+    </section>
 
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
     function handleSlotSelection(inputElement) {
         const slotTimeText = inputElement.getAttribute('data-time');
-        document.getElementById('selectedSlotText').innerText = slotTimeText;
+        document.getElementById('selectedSlotText').textContent = slotTimeText;
         document.getElementById('confirmPanel').classList.remove('hidden');
     }
 
     function resetSlotSelection() {
         const radios = document.querySelectorAll('.slot-radio');
-        radios.forEach(r => r.checked = false);
+        radios.forEach(r => { r.checked = false; });
         document.getElementById('confirmPanel').classList.add('hidden');
     }
 </script>
-
-</body>
-</html>
+{% endblock %}

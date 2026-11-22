@@ -20,9 +20,7 @@ def home_view(request):
     events = Event.objects.filter(end_time__gt=timezone.now()).order_by("end_time")[:5]
     latest_bookings = []
     if request.user.is_authenticated:
-        latest_bookings = TicketBooking.objects.filter(
-            user=request.user # or attendee=request.user depending on your field name
-        ).select_related('event').order_by('-id')[:5]
+        latest_bookings = TicketBooking.objects.filter(user=request.user).select_related('event').order_by('-id')[:5]
     return render(request, 'home.html', {
         'org' :  org,
         'events': events,
@@ -52,7 +50,7 @@ def wallet_view(request):
             Transaction.objects.create(
                 user=request.user,
                 amount=amount,
-                transaction_type=tx_type,
+                transaction_type= "CREDIT",
             )
             return redirect('account')
             
@@ -85,14 +83,14 @@ def create_event_view(request):
                         formset.instance = event
                         formset.save()
                         create_event_slots(event)
-                        messages.success(request, f"Slot event '{event.name}' and its slots created successfully!")
+                        messages.success(request, f"Slot event '{event.name}' and its slots created successfully")
                         return redirect('org_dashboard')
                     
                     except ValidationError:
                         event.delete()  
                         messages.error(request, f"Slot Generation Error")
                 else:
-                    messages.error(request, "Errors in schedule stubid.")
+                    messages.error(request, "Errors in schedule .")
             
             else:
                 event.save()
@@ -140,19 +138,18 @@ def event_detail_view(request,event_id):
 @login_required
 @transaction.atomic
 def book_ticket_view(request, event_id):
-    event = get_object_or_404(Event.objects.select_for_update(), id=event_id)
-    
     if request.method != "POST":
         return redirect("event_detail", event_id=event.id)
-
+    event = get_object_or_404(Event, id = event_id)
     if event.type != "TICKET":
-        messages.error(request, "This event does not support ticket bookings.")
-        return redirect("event_detail", event_id=event.id)
-
+            messages.error(request, "This event does not support non ticket bookings.")
+            return redirect("event_detail", event_id=event.id)
+    
+    event = get_object_or_404(Event.objects.select_for_update(), id=event_id)
     try:
         quantity = int(request.POST.get("quantity", 1))
     except (ValueError, TypeError):
-        messages.error(request, "Invalid ticket quantity. Please enter a valid number.")
+        messages.error(request, "Invalid ticket quantity.Enter valid no .")
         return redirect("event_detail", event_id=event.id)
 
     if quantity <= 0:
@@ -160,7 +157,7 @@ def book_ticket_view(request, event_id):
         return redirect("event_detail", event_id=event.id)
 
     if event.capacity is None or event.capacity <= 0:
-        messages.error(request, "Sorry, this event is completely sold out or capacity is not configured.")
+        messages.error(request, "Sorry, event unavailable.")
         return redirect("event_detail", event_id=event.id)
 
     if quantity > event.capacity:
@@ -205,12 +202,12 @@ def book_ticket_view(request, event_id):
         created_at=timezone.now()
     )
 
-    messages.success(request, f"Successfully booked {quantity} ticket(s) for {event.name}!")
+    return redirect("ticket_confirmation", booking_id=booking.id)
 
-    return render(request, "book_ticket.html", {
-        "booking": booking,
-        "event": event,
-    })
+@login_required
+def ticket_confirmation_view(request, booking_id):
+    booking = get_object_or_404(TicketBooking, id=booking_id, user=request.user)
+    return render(request, "book_ticket.html", {"booking": booking})
 
 @login_required
 @transaction.atomic
@@ -270,17 +267,25 @@ def book_slot_view(request,event_id):
         created_at = timezone.now()
     )
 
-    messages.success(request, f"Successfully booked slot for {event.name}!")
-    
+    return redirect("slot_confirmation", booking_id=booking.id)
+
+@login_required
+def slot_confirmation_view(request, booking_id):
+    booking = get_object_or_404(
+        SlotBooking.objects.select_related("slot__event"),
+        id=booking_id, user=request.user,
+    )
+    slot = booking.slot
+    event = slot.event if slot else None
     return render(request, "book_slot.html", {
         "booking": booking,
         "event": event,
         "slot": slot,
-        "total_amount" : total_amount
+        "total_amount": event.price if event else None,
     })
 
-
 @transaction.atomic
+@login_required
 def confirm_ticket_view(request):
     if not request.user.groups.filter(name="Organization").exists():
         raise PermissionDenied("Thou is an impostor among men")
@@ -324,6 +329,7 @@ def confirm_ticket_view(request):
         "ticket_bookings": ticket_bookings,
     })
 
+@login_required
 def analytics_view(request):
     if not request.user.groups.filter(name="Organization").exists():
         raise PermissionDenied("Thou is an impostor among men")
@@ -340,6 +346,7 @@ def analytics_view(request):
     })
     pass
 
+@login_required
 def bookings_view(request):
     ticket_bookings = TicketBooking.objects.filter(user=request.user).select_related('event').order_by('-created_at')
     slot_bookings = SlotBooking.objects.filter(user=request.user).select_related('slot__event').order_by('-created_at')

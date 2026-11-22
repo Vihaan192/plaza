@@ -23,7 +23,7 @@ class EventCreationForm(forms.ModelForm):
         clean_data = super().clean()
         start_date = clean_data.get('start_time')
         end_date = clean_data.get('end_time')
-        if(end_date <= start_date):
+        if end_date and start_date and end_date <= start_date:
             raise ValidationError("End date earlier than start date")
 
 

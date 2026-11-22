@@ -1,36 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Booking Status | Plaza</title>
-    <style>
-        body { background-color: #171b1b; color: #f1f1f1; font-family: Arial, sans-serif; padding: 40px; }
-        .container { max-width: 600px; margin: auto; padding: 30px; background-color: #222828; border-radius: 12px; border: 1px solid #363d3d; }
-        h1 { color: #f5c542; }
-        .error-box { background: #4d2222; padding: 15px; border-radius: 6px; margin: 20px 0; color: #fff; }
-        .success-box { background: #224d22; padding: 15px; border-radius: 6px; margin: 20px 0; color: #fff; }
-        .back-button { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #f5c542; color: #171b1b; text-decoration: none; border-radius: 6px; font-weight: bold; }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
 
-<div class="container">
-    {% if error_message %}
-        <h1>Booking Failed</h1>
-        <div class="error-box">
-            {{ error_message }}
-        </div>
-        <a href="{% url 'event_detail' event.id %}" class="back-button">← Back to Event</a>
-    {% else %}
-        <h1>Booking Confirmed! 🎉</h1>
-        <div class="success-box">
-            Successfully booked {{ booking.quantity }} ticket(s) for <strong>{{ event.name }}</strong>.
-        </div>
-        <p><strong>Total Paid:</strong> ₹{{ booking.total_amount }}</p>
-        <p><strong>Status:</strong> {{ booking.status }}</p>
-        <a href="{% url 'events' %}" class="back-button">← Back to All Events</a>
-    {% endif %}
+{% block title %}Booking Status | Plaza{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+
+    <section class="bg-plaza-card border border-plaza-border rounded-2xl p-6 md:p-8 shadow-lg space-y-6">
+
+        {% if error_message %}
+            <!-- Error State -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 border-b border-plaza-border">
+                <div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/30">
+                        Action Failed
+                    </span>
+                    <h1 class="text-2xl md:text-3xl font-bold text-red-400 tracking-tight mt-2">
+                        Booking Failed
+                    </h1>
+                </div>
+            </div>
+
+            <div class="px-4 py-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-sm">
+                {{ error_message }}
+            </div>
+
+            <div class="pt-2 flex flex-wrap items-center gap-3">
+                <a href="{% url 'event_detail' event.id %}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-plaza-gold hover:bg-plaza-gold-hover text-plaza-dark transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span>Back to Event</span>
+                </a>
+
+                <a href="{% url 'wallet' %}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold bg-plaza-panel hover:bg-plaza-border/60 text-gray-200 border border-plaza-border transition-colors">
+                    Check Wallet
+                </a>
+            </div>
+
+        {% else %}
+            <!-- Confirmed Ticket State -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 border-b border-plaza-border">
+                <div>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                        Confirmed
+                    </span>
+                    <h1 class="text-2xl md:text-3xl font-bold text-plaza-gold tracking-tight mt-2">
+                        Booking Confirmed!
+                    </h1>
+                </div>
+            </div>
+
+            <div class="px-4 py-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-sm">
+                Successfully booked <strong class="font-semibold text-white">{{ booking.quantity }}</strong> ticket(s) for <strong class="font-semibold text-white">{{ booking.event_name }}</strong>.
+            </div>
+
+            <!-- Booking Summary Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4">
+                    <div class="text-xs font-medium text-gray-400">Tickets Reserved</div>
+                    <div class="text-sm font-semibold text-white mt-1">{{ booking.quantity }}</div>
+                </div>
+
+                <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4">
+                    <div class="text-xs font-medium text-gray-400">Status</div>
+                    <div class="text-sm font-semibold text-emerald-400 mt-1">{{ booking.status }}</div>
+                </div>
+
+                <div class="bg-plaza-panel border border-plaza-border rounded-xl p-4 sm:col-span-2 flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Paid</span>
+                    <span class="text-xl font-bold text-plaza-gold">₹{{ booking.total_amount }}</span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-2 flex flex-wrap items-center gap-3">
+                <a href="{% url 'events' %}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-plaza-gold hover:bg-plaza-gold-hover text-plaza-dark transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span>Back to All Events</span>
+                </a>
+
+                <a href="{% url 'booking' %}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-semibold bg-plaza-panel hover:bg-plaza-border/60 text-gray-200 border border-plaza-border transition-colors">
+                    View My Bookings
+                </a>
+            </div>
+        {% endif %}
+
+    </section>
+
 </div>
-
-</body>
-</html>
+{% endblock %}
