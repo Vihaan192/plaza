@@ -8,8 +8,11 @@ dependencies = [
     "django>=6.1.2",
     "django-environ>=0.14.0",
     "django-extensions>=4.1",
-    "django-jazzmin>=3.0.5",
     "gunicorn>=26.2.0",
     "psycopg[binary]>=3.3.6",
+]
+
+[project.optional-dependencies]
+schema-graph = [
     "pygraphviz>=2.0.4",
 ]

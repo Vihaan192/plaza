@@ -1,7 +1,7 @@
 from django.contrib import admin,messages
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from .models import *
+from events.models import EventSchedule,Event,EventSlot
 
 admin.site.unregister(User)
 

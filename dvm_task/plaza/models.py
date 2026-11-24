@@ -1,17 +1,33 @@
 from django.db import models,transaction
 from django.contrib.auth.models import User
-from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import datetime, timedelta
 
 # Create your models here.
+'''
+class TransactionType(models.TextChoices):
+    CRE = ("CREDIT","Credit")
+    DEB = ("DEBIT" , "Debit")
+
+class EventType(models.TextChoices):
+    TIC = ("TICKET" ,"Ticket")
+    SLO = ("SLOT", "Slot")
+
+class ConsumedType(models.TextChoices):
+    Y = ("YES","Yes")
+    N = ("NO" , "No")
+
+class StatusType(models.TextChoices):
+    CON =("CONFIRMED","Confirmed")
+    CAN = ("CANCELLED" , "Cancelled")
+
 class Transaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_type = models.CharField(
         max_length=10, 
-        choices=[('CREDIT', 'Credit'), ('DEBIT', 'Debit')]
+        choices=TransactionType
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -21,7 +37,7 @@ class Transaction(models.Model):
 class Event(models.Model):
     type = models.CharField(
         max_length = 10,
-        choices = [('SLOT','Slot'),('TICKET','Ticket')]
+        choices = EventType
     )
     price = models.DecimalField(max_digits = 10,decimal_places = 2,default = 0)
     capacity = models.PositiveIntegerField(null = True, blank = True, help_text = "Max capacity for ticket based events")
@@ -40,7 +56,7 @@ class Event(models.Model):
             if self.end_time <= self.start_time:
                 raise ValidationError("Invalid start endtimes.")
             
-            if self.type == "TICKET" and self.duration:
+            if self.type == EventType.TIC and self.duration:
                 actual_minutes = round((self.end_time - self.start_time).total_seconds()/60)
                 if actual_minutes != self.duration:
                     raise ValidationError("Duration start end mismatch")
@@ -77,7 +93,7 @@ def validate_slots(start_time, end_time, step):
 
 @transaction.atomic
 def create_event_slots(event):
-    if event.type != "SLOT":
+    if event.type != EventType.SLO:
         return
 
     if event.duration <= 0:
@@ -121,9 +137,9 @@ class TicketBooking(models.Model):
     event_name = models.CharField(max_length = 100,null = True , blank = True)
     quantity = models.PositiveIntegerField()
     total_amount = models.DecimalField(max_digits = 10,decimal_places = 2,default = 0)
-    status = models.CharField(max_length = 10 , choices = [('CONFIRMED','Confirmed'),('CANCELLED','Cancelled')])
+    status = models.CharField(max_length = 10 , choices = StatusType)
     created_at = models.DateTimeField(auto_now_add=True)
-    consumed = models.CharField(max_length = 10, choices = [('YES','Yes'),('NO','No')],default= 'No')
+    consumed = models.CharField(max_length = 10, choices = ConsumedType ,default= ConsumedType.N)
 
     def __str__(self):
         return f"{self.user} : {self.event} : {self.status} "
@@ -134,9 +150,10 @@ class SlotBooking(models.Model):
     event_name = models.CharField(max_length=100,null = True , blank = True)
     slot_start_time = models.DateTimeField(null = True)
     slot_end_time = models.DateTimeField(null = True, blank = True)
-    status = models.CharField(max_length = 10 , choices = [('CONFIRMED','Confirmed'),('CANCELLED','Cancelled')])
+    status = models.CharField(max_length = 10 , choices = StatusType)
     created_at = models.DateTimeField(auto_now_add=True)
-    consumed = models.CharField(max_length = 10, choices = [('YES','Yes'),('NO','No')], default = 'No')
+    consumed = models.CharField(max_length = 10, choices = ConsumedType, default = ConsumedType.N)
 
     def __str__(self):
         return f"{self.user} : {self.slot} : {self.status} "
+'''

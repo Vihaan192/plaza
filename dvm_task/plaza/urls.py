@@ -2,6 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from plaza.views import *
 
+'''
 urlpatterns = [
     path('', welcome_view, name='welcome'),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
@@ -21,3 +22,4 @@ urlpatterns = [
     path("bookings/ticket/<int:booking_id>/confirmation/", ticket_confirmation_view, name="ticket_confirmation"),
     path("bookings/slot/<int:booking_id>/confirmation/", slot_confirmation_view, name="slot_confirmation"),
 ]
+'''

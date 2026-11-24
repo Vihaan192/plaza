@@ -37,7 +37,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'plaza',
     'django_extensions',
-    'django_erd_generator',
+    'wallet',
+    'booking',
+    'events'
 ]
 
 MIDDLEWARE = [
@@ -64,13 +65,14 @@ ROOT_URLCONF = 'dvm_task.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        "DIRS": [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'events.context_processors.is_org',
             ],
         },
     },
@@ -145,8 +147,3 @@ LOGIN_URL = '/plaza/login'
 LOGIN_REDIRECT_URL = '/plaza/home/'
 LOGOUT_REDIRECT_URL = '/plaza/login'
 
-#Jazzmin config
-JAZZMIN_UI_TWEAKS = {
-    "theme": "darkly", 
-    "dark_mode_theme": "darkly",
-}
