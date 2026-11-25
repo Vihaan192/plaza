@@ -1,130 +1,65 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.test import TestCase,TransactionTestCase,Client
+from django.db import connections,connection
+from threading import Thread
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.urls import reverse
+from decimal import Decimal
+from events.models import Event,EventType
+from datetime import timedelta
+from booking.models import *
 from django.db import transaction
-from django.utils.dateparse import parse_date
 from django.utils import timezone
-from django.contrib import messages
-from bookings.models import TicketBooking
-from .models import Event, EventSlot, EventType, create_event_slots
-from .forms import EventCreationForm, ScheduleFormSet
 
+class EventACID(TransactionTestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='admin_user', password='password123')
 
-def welcome_view(request):
-    return render(request, 'welcome.html')
+    def test_eventcreation(self):
+        event_count_before = Event.objects.count()
+        with self.assertRaises(ValidationError):
+            event = Event.objects.create(
+                type=EventType.SLO,
+                price=Decimal('100.00'),
+                capacity=10,
+                start_time=timezone.now() + timedelta(days=2),
+                end_time=timezone.now() + timedelta(days=1, hours=5),
+                duration=60,
+                name='Tennis',
+                desc='Tennis court slots',
+                location='Sports Complex',
+                created_by=self.user
+            )
+        self.assertEqual(Event.objects.count(), event_count_before)
 
-
-@login_required
-def home_view(request):
-    org = request.user.groups.filter(name="Organization").exists()
-    events = Event.objects.filter(end_time__gt=timezone.now()).order_by("end_time")[:5]
-    latest_bookings = TicketBooking.objects.filter(
-        user=request.user
-    ).select_related('event').order_by('-id')[:5]
-    return render(request, 'home.html', {
-        'org': org,
-        'events': events,
-        'latest_bookings': latest_bookings,
-    })
-
-
-@login_required
-def org_dashboard_view(request):
-    org = request.user.groups.filter(name="Organization").exists()
-    if not org:
-        raise PermissionDenied("Thou is an impostor among men")
-    return render(request, "org_dash.html")
-
-
-@login_required
-@transaction.atomic
-def create_event_view(request):
-    if not request.user.groups.filter(name="Organization").exists():
-        raise PermissionDenied("Thou is an impostor among men")
-
-    if request.method == "POST":
-        form = EventCreationForm(request.POST)
-        formset = ScheduleFormSet(request.POST)
-
-        if form.is_valid():
-            event = form.save(commit=False)
-            event.created_by = request.user
-
-            if event.type == EventType.SLO:
-                if formset.is_valid():
-                    try:
-                        event.save()
-                        formset.instance = event
-                        formset.save()
-                        create_event_slots(event)
-                        messages.success(
-                            request,
-                            f"Slot event '{event.name}' and its slots created successfully"
-                        )
-                        return redirect('org_dashboard')
-                    except ValidationError:
-                        event.delete()
-                        messages.error(request, "Slot Generation Error")
-                else:
-                    messages.error(request, "Errors in schedule.")
-            else:
-                event.save()
-                messages.success(
-                    request,
-                    f"Ticket event '{event.name}' created successfully!"
-                )
-                return redirect('org_dashboard')
-    else:
-        form = EventCreationForm()
-        formset = ScheduleFormSet()
-
-    return render(request, "create_event.html", {
-        "form": form,
-        "formset": formset,
-    })
-
-
-@login_required
-def events_view(request):
-    events = Event.objects.filter(end_time__gt=timezone.now()).order_by("end_time")
-    return render(request, "events.html", {"events": events})
-
-
-@login_required
-def event_detail_view(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    slot_dates = []
-    selected_date = None
-    slots = EventSlot.objects.none()
-
-    if event.type == EventType.SLO:
-        slot_dates = list(
-            EventSlot.objects.filter(
-                event=event,
-                start_time__gt=timezone.now(),
-            ).dates("start_time", "day")
-        )
-        raw_date = request.GET.get("date", "")
+    def test_slotrollback(self):
+        event_count_before = Event.objects.count()
+        slot_count_before = EventSlot.objects.count()
+        #dummy wrong event
         try:
-            requested_date = parse_date(raw_date)
-        except ValueError:
-            requested_date = None
+            with transaction.atomic():
+                event = Event.objects.create(
+                    type=EventType.SLO,
+                    price=Decimal('100.00'),
+                    capacity=10,
+                    start_time=timezone.now() + timedelta(days=1),
+                    end_time=timezone.now() + timedelta(days=1, hours=5),
+                    duration=60,
+                    name='Corrupted Event',
+                    desc='Should rollback',
+                    location='Sports Complex',
+                    created_by=self.user
+                )
+                for i in range(3):
+                    if i == 2:
+                        raise ValidationError("Slot generation failed")
+                    EventSlot.objects.create(
+                        event=event,
+                        start_time=event.start_time + timedelta(minutes=i*60),
+                        end_time=event.start_time + timedelta(minutes=(i+1)*60),
+                    )
+        except Exception as e:
+            print(f"Error : {e}")
 
-        if requested_date in slot_dates:
-            selected_date = requested_date
-        elif slot_dates:
-            selected_date = slot_dates[0]
-
-        if selected_date:
-            slots = EventSlot.objects.filter(
-                event=event,
-                start_time__date=selected_date,
-                start_time__gt=timezone.now(),
-            ).order_by("start_time")
-
-    return render(request, "event_detail.html", {
-        "event": event,
-        "slots": slots,
-        "slot_dates": slot_dates,
-        "selected_date": selected_date,
-    })
+        self.assertEqual(Event.objects.count(), event_count_before)
+        self.assertEqual(EventSlot.objects.count(), slot_count_before)

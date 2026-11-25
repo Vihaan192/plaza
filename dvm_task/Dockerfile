@@ -3,13 +3,16 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml uv.lock ./
+ENV UV_NO_DEV=1
+RUN uv sync --locked
 
 COPY . .
 
-RUN python manage.py collectstatic --noinput
+RUN uv run --no-sync python manage.py collectstatic --noinput
 
-CMD ["gunicorn", "dvm_task.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["uv", "run", "--no-sync", "gunicorn", "dvm_task.wsgi:application", "--bind", "0.0.0.0:8000"]

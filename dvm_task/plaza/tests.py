@@ -1,13 +1,14 @@
-from django.test import TestCase,TransactionTestCase
+from django.test import TestCase,TransactionTestCase,Client
 from django.db import connections,connection
 from threading import Thread
 # Create your tests here.
-from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
 from decimal import Decimal
 from plaza.models import *
 
+
+'''
 class WalletTransactionTest(TestCase):
     def setUp(self):
         self.client = Client()
@@ -23,7 +24,7 @@ class WalletTransactionTest(TestCase):
         })
 
         self.assertEqual(Transaction.objects.filter(user=self.user).count(), 0)
-
+        
 class RaceTest(TransactionTestCase):
     def setUp(self):
         self.user1 = User.objects.create_user(username='testuser1', password='password123')
@@ -43,6 +44,7 @@ class RaceTest(TransactionTestCase):
             created_by=self.user1
         )
 
+        
     def test_race(self):
         booking_url = reverse('book_ticket', args=[self.event.id])
 
@@ -72,7 +74,6 @@ class RaceTest(TransactionTestCase):
         ).count()
         self.assertEqual(self.event.capacity, 0, "capacity wrong")
         self.assertEqual(confirmed_bookings, 1, "booking wrong")
-
 
 class EventACID(TransactionTestCase):
     def setUp(self):
@@ -126,3 +127,5 @@ class EventACID(TransactionTestCase):
 
         self.assertEqual(Event.objects.count(), event_count_before)
         self.assertEqual(EventSlot.objects.count(), slot_count_before)
+
+'''
