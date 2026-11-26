@@ -37,7 +37,6 @@ def org_dashboard_view(request):
 
 
 @login_required
-@transaction.atomic
 def create_event_view(request):
     if not request.user.groups.filter(name="Organization").exists():
         raise PermissionDenied("Thou is an impostor among men")
@@ -53,18 +52,20 @@ def create_event_view(request):
             if event.type == EventType.SLO:
                 if formset.is_valid():
                     try:
-                        event.save()
-                        formset.instance = event
-                        formset.save()
-                        create_event_slots(event)
+                        with transaction.atomic():
+                            event.save()
+                            formset.instance = event
+                            formset.save()
+                            create_event_slots(event)
+                            
+                    except ValidationError:
+                        messages.error(request, "Slot Generation Error")
+                    else:
                         messages.success(
                             request,
                             f"Slot event '{event.name}' and its slots created successfully"
                         )
                         return redirect('org_dashboard')
-                    except ValidationError:
-                        event.delete()
-                        messages.error(request, "Slot Generation Error")
                 else:
                     messages.error(request, "Errors in schedule.")
             else:

@@ -209,11 +209,14 @@ def confirm_ticket_view(request):
     if request.method == "POST":
         booking_id = request.POST.get("booking_id")
         booking = get_object_or_404(
-            TicketBooking, id=booking_id, event__created_by=request.user
+            TicketBooking.objects.select_for_update(), id=booking_id, event__created_by=request.user
         )
-        booking.consumed = ConsumedType.Y
-        booking.save(update_fields=["consumed"])
-        messages.success(request, f"Booking #{booking.id} ({booking.user.username}) consumed")
+        if booking.consumed == ConsumedType.Y:
+            messages.error(request,"ALready consumed")
+        else:
+            booking.consumed = ConsumedType.Y
+            booking.save(update_fields=["consumed"])
+            messages.success(request, f"Booking #{booking.id} ({booking.user.username}) consumed")
         return redirect(f"{request.path}?event_id={selected_event_id}&event_q={event_query}")
 
     return render(request, "confirm_tickets.html", {
@@ -263,7 +266,7 @@ def bookings_view(request):
     ).select_related('event').order_by('-created_at')
     slot_bookings = SlotBooking.objects.filter(
         user=request.user
-    ).select_related('slot__event').order_by('-created_at')
+    ).select_related('slot__event').order_by('-created_at') 
 
     context = {
         'ticket_bookings': ticket_bookings,
