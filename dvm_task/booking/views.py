@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from events.models import Event, EventSlot, EventType
 from wallet.models import Transaction, TransactionType
-from .models import TicketBooking, SlotBooking, StatusType, ConsumedType
+from .models import *
 
 
 @login_required
